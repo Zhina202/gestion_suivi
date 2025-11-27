@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, Modal, message, Input, Select } from "antd";
+import { Table, Card, Button, Tag, Space, Modal, message, Input, Form } from "antd";
 import { Edit, Trash2, Plus, Search, User as UserIcon } from "lucide-react";
 import { getAllUsers, updateUser, deleteUser } from "../actions";
 import { User, UserRole } from "@/type";
@@ -40,6 +40,35 @@ export default function UsersPage() {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    form.setFieldsValue({
+      name: user.name,
+      role: user.role,
+      phone: user.phone || "",
+      fonction: user.fonction || "",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingUser) {
+        await updateUser(editingUser.id, values);
+        message.success("Utilisateur mis à jour avec succès");
+        setIsModalOpen(false);
+        form.resetFields();
+        fetchUsers();
+      }
+    } catch (error: any) {
+      if (error.errorFields) {
+        return;
+      }
+      message.error(error.message || "Erreur lors de la mise à jour");
+    }
+  };
 
   const handleDelete = async (id: string) => {
     Modal.confirm({
@@ -115,10 +144,7 @@ export default function UsersPage() {
           <Button
             type="text"
             icon={<Edit className="w-4 h-4" />}
-            onClick={() => {
-              // TODO: Implémenter l'édition
-              message.info("Fonctionnalité d'édition à venir");
-            }}
+            onClick={() => handleEdit(record)}
           />
           <Button
             type="text"
@@ -188,6 +214,57 @@ export default function UsersPage() {
           </div>
         </main>
       </div>
+
+      <Modal
+        title="Modifier l'utilisateur"
+        open={isModalOpen}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        okText="Modifier"
+        cancelText="Annuler"
+        width={600}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="name"
+            label="Nom"
+            rules={[
+              { required: true, message: "Le nom est requis" },
+              { max: 100, message: "Le nom ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Nom complet" disabled />
+          </Form.Item>
+          <Form.Item
+            name="role"
+            label="Rôle"
+            rules={[{ required: true, message: "Le rôle est requis" }]}
+          >
+            <Input placeholder="Rôle" disabled />
+          </Form.Item>
+          <Form.Item
+            name="fonction"
+            label="Fonction"
+            rules={[
+              { max: 100, message: "La fonction ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Fonction dans la CENI" />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label="Téléphone"
+            rules={[
+              { max: 20, message: "Le téléphone ne doit pas dépasser 20 caractères" },
+            ]}
+          >
+            <Input placeholder="Numéro de téléphone" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Wrapper>
   );
 }

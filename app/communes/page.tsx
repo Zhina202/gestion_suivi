@@ -2,18 +2,25 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, Modal, message, Input } from "antd";
-import { Edit, Trash2, Search, Home } from "lucide-react";
+import { Table, Card, Button, Tag, Space, Modal, message, Input, Form, Select } from "antd";
+import { Edit, Trash2, Plus, Search, Home } from "lucide-react";
 import {
   getAllCommunes,
+  createCommune,
+  updateCommune,
   deleteCommune,
+  getAllDistricts,
 } from "../actions";
-import { Commune } from "@/type";
+import { Commune, District } from "@/type";
 
 export default function CommunesPage() {
   const [communes, setCommunes] = useState<Commune[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCommune, setEditingCommune] = useState<Commune | null>(null);
+  const [form] = Form.useForm();
 
   const fetchCommunes = async () => {
     try {
@@ -30,7 +37,49 @@ export default function CommunesPage() {
 
   useEffect(() => {
     fetchCommunes();
+    const fetchDistricts = async () => {
+      const data = await getAllDistricts();
+      setDistricts(data as District[]);
+    };
+    fetchDistricts();
   }, []);
+
+  const handleCreate = () => {
+    setEditingCommune(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (commune: Commune) => {
+    setEditingCommune(commune);
+    form.setFieldsValue({
+      code: commune.code,
+      nom: commune.nom,
+      districtId: commune.districtId,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingCommune) {
+        await updateCommune(editingCommune.id, values);
+        message.success("Commune mise à jour avec succès");
+      } else {
+        await createCommune(values);
+        message.success("Commune créée avec succès");
+      }
+      setIsModalOpen(false);
+      form.resetFields();
+      fetchCommunes();
+    } catch (error: any) {
+      if (error.errorFields) {
+        return;
+      }
+      message.error(error.message || "Erreur lors de l'enregistrement");
+    }
+  };
 
   const handleDelete = async (id: string) => {
     Modal.confirm({
@@ -113,9 +162,7 @@ export default function CommunesPage() {
           <Button
             type="text"
             icon={<Edit className="w-4 h-4" />}
-            onClick={() => {
-              message.info("Fonctionnalité d'édition à venir");
-            }}
+            onClick={() => handleEdit(record)}
           />
           <Button
             type="text"
@@ -146,6 +193,14 @@ export default function CommunesPage() {
                   Gestion des communes de Madagascar
                 </p>
               </div>
+              <Button
+                type="primary"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={handleCreate}
+                size="large"
+              >
+                Nouvelle Commune
+              </Button>
             </div>
 
             <Card>
@@ -188,6 +243,55 @@ export default function CommunesPage() {
           </div>
         </main>
       </div>
+
+      <Modal
+        title={editingCommune ? "Modifier la commune" : "Nouvelle commune"}
+        open={isModalOpen}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        okText={editingCommune ? "Modifier" : "Créer"}
+        cancelText="Annuler"
+        width={600}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="code"
+            label="Code"
+            rules={[
+              { required: true, message: "Le code est requis" },
+              { max: 10, message: "Le code ne doit pas dépasser 10 caractères" },
+            ]}
+          >
+            <Input placeholder="Code de la commune" />
+          </Form.Item>
+          <Form.Item
+            name="nom"
+            label="Nom"
+            rules={[
+              { required: true, message: "Le nom est requis" },
+              { max: 100, message: "Le nom ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Nom de la commune" />
+          </Form.Item>
+          <Form.Item
+            name="districtId"
+            label="District"
+            rules={[{ required: true, message: "Le district est requis" }]}
+          >
+            <Select placeholder="Sélectionner un district" showSearch>
+              {districts.map((district) => (
+                <Select.Option key={district.id} value={district.id}>
+                  {district.nom} ({district.region?.nom})
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
     </Wrapper>
   );
 }

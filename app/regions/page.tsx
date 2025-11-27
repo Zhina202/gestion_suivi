@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Space, Modal, message, Input } from "antd";
+import { Table, Card, Button, Space, Modal, message, Input, Form } from "antd";
 import { Edit, Trash2, Plus, Search, MapPin } from "lucide-react";
 import {
   getAllRegions,
@@ -16,6 +16,9 @@ export default function RegionsPage() {
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingRegion, setEditingRegion] = useState<Region | null>(null);
+  const [form] = Form.useForm();
 
   const fetchRegions = async () => {
     try {
@@ -51,6 +54,43 @@ export default function RegionsPage() {
         }
       },
     });
+  };
+
+  const handleCreate = () => {
+    setEditingRegion(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (region: Region) => {
+    setEditingRegion(region);
+    form.setFieldsValue({
+      code: region.code,
+      nom: region.nom,
+      chefLieu: region.chefLieu || "",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingRegion) {
+        await updateRegion(editingRegion.id, values);
+        message.success("Région mise à jour avec succès");
+      } else {
+        await createRegion(values);
+        message.success("Région créée avec succès");
+      }
+      setIsModalOpen(false);
+      form.resetFields();
+      fetchRegions();
+    } catch (error: any) {
+      if (error.errorFields) {
+        return;
+      }
+      message.error(error.message || "Erreur lors de l'enregistrement");
+    }
   };
 
   const filteredRegions = regions.filter((region) => {
@@ -106,9 +146,7 @@ export default function RegionsPage() {
           <Button
             type="text"
             icon={<Edit className="w-4 h-4" />}
-            onClick={() => {
-              message.info("Fonctionnalité d'édition à venir");
-            }}
+            onClick={() => handleEdit(record)}
           />
           <Button
             type="text"
@@ -139,6 +177,14 @@ export default function RegionsPage() {
                   Gestion des régions de Madagascar
                 </p>
               </div>
+              <Button
+                type="primary"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={handleCreate}
+                size="large"
+              >
+                Nouvelle Région
+              </Button>
             </div>
 
             <Card>
@@ -181,6 +227,51 @@ export default function RegionsPage() {
           </div>
         </main>
       </div>
+
+      <Modal
+        title={editingRegion ? "Modifier la région" : "Nouvelle région"}
+        open={isModalOpen}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        okText={editingRegion ? "Modifier" : "Créer"}
+        cancelText="Annuler"
+        width={600}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="code"
+            label="Code"
+            rules={[
+              { required: true, message: "Le code est requis" },
+              { max: 10, message: "Le code ne doit pas dépasser 10 caractères" },
+            ]}
+          >
+            <Input placeholder="Code de la région" />
+          </Form.Item>
+          <Form.Item
+            name="nom"
+            label="Nom"
+            rules={[
+              { required: true, message: "Le nom est requis" },
+              { max: 100, message: "Le nom ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Nom de la région" />
+          </Form.Item>
+          <Form.Item
+            name="chefLieu"
+            label="Chef-lieu"
+            rules={[
+              { max: 100, message: "Le chef-lieu ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Chef-lieu de la région" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Wrapper>
   );
 }

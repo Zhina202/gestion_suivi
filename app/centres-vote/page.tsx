@@ -2,18 +2,25 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, Modal, message, Input } from "antd";
-import { Edit, Trash2, Search, Vote } from "lucide-react";
+import { Table, Card, Button, Tag, Space, Modal, message, Input, Form, Select, InputNumber } from "antd";
+import { Edit, Trash2, Plus, Search, Vote } from "lucide-react";
 import {
   getAllCentresVote,
+  createCentreVote,
+  updateCentreVote,
   deleteCentreVote,
+  getAllCommunes,
 } from "../actions";
-import { CentreVote } from "@/type";
+import { CentreVote, Commune } from "@/type";
 
 export default function CentresVotePage() {
   const [centresVote, setCentresVote] = useState<CentreVote[]>([]);
+  const [communes, setCommunes] = useState<Commune[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCentreVote, setEditingCentreVote] = useState<CentreVote | null>(null);
+  const [form] = Form.useForm();
 
   const fetchCentresVote = async () => {
     try {
@@ -30,7 +37,51 @@ export default function CentresVotePage() {
 
   useEffect(() => {
     fetchCentresVote();
+    const fetchCommunes = async () => {
+      const data = await getAllCommunes();
+      setCommunes(data as Commune[]);
+    };
+    fetchCommunes();
   }, []);
+
+  const handleCreate = () => {
+    setEditingCentreVote(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (centreVote: CentreVote) => {
+    setEditingCentreVote(centreVote);
+    form.setFieldsValue({
+      code: centreVote.code,
+      nom: centreVote.nom,
+      communeId: centreVote.communeId,
+      adresse: centreVote.adresse || "",
+      capacite: centreVote.capacite || undefined,
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingCentreVote) {
+        await updateCentreVote(editingCentreVote.id, values);
+        message.success("Centre de vote mis à jour avec succès");
+      } else {
+        await createCentreVote(values);
+        message.success("Centre de vote créé avec succès");
+      }
+      setIsModalOpen(false);
+      form.resetFields();
+      fetchCentresVote();
+    } catch (error: any) {
+      if (error.errorFields) {
+        return;
+      }
+      message.error(error.message || "Erreur lors de l'enregistrement");
+    }
+  };
 
   const handleDelete = async (id: string) => {
     Modal.confirm({
@@ -129,9 +180,7 @@ export default function CentresVotePage() {
           <Button
             type="text"
             icon={<Edit className="w-4 h-4" />}
-            onClick={() => {
-              message.info("Fonctionnalité d'édition à venir");
-            }}
+            onClick={() => handleEdit(record)}
           />
           <Button
             type="text"
@@ -162,6 +211,14 @@ export default function CentresVotePage() {
                   Gestion des centres de vote de Madagascar
                 </p>
               </div>
+              <Button
+                type="primary"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={handleCreate}
+                size="large"
+              >
+                Nouveau Centre de Vote
+              </Button>
             </div>
 
             <Card>
@@ -204,6 +261,73 @@ export default function CentresVotePage() {
           </div>
         </main>
       </div>
+
+      <Modal
+        title={editingCentreVote ? "Modifier le centre de vote" : "Nouveau centre de vote"}
+        open={isModalOpen}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        okText={editingCentreVote ? "Modifier" : "Créer"}
+        cancelText="Annuler"
+        width={600}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="code"
+            label="Code"
+            rules={[
+              { required: true, message: "Le code est requis" },
+              { max: 10, message: "Le code ne doit pas dépasser 10 caractères" },
+            ]}
+          >
+            <Input placeholder="Code du centre de vote" />
+          </Form.Item>
+          <Form.Item
+            name="nom"
+            label="Nom"
+            rules={[
+              { required: true, message: "Le nom est requis" },
+              { max: 100, message: "Le nom ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Nom du centre de vote" />
+          </Form.Item>
+          <Form.Item
+            name="communeId"
+            label="Commune"
+            rules={[{ required: true, message: "La commune est requise" }]}
+          >
+            <Select placeholder="Sélectionner une commune" showSearch>
+              {communes.map((commune) => (
+                <Select.Option key={commune.id} value={commune.id}>
+                  {commune.nom} ({commune.district?.nom})
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="adresse"
+            label="Adresse"
+            rules={[
+              { max: 200, message: "L'adresse ne doit pas dépasser 200 caractères" },
+            ]}
+          >
+            <Input placeholder="Adresse du centre de vote" />
+          </Form.Item>
+          <Form.Item
+            name="capacite"
+            label="Capacité (nombre d'électeurs)"
+            rules={[
+              { type: "number", min: 0, message: "La capacité doit être positive" },
+            ]}
+          >
+            <InputNumber placeholder="Capacité" style={{ width: "100%" }} min={0} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Wrapper>
   );
 }

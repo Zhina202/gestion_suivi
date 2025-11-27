@@ -2,18 +2,25 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, Modal, message, Input } from "antd";
-import { Edit, Trash2, Search, Building2 } from "lucide-react";
+import { Table, Card, Button, Tag, Space, Modal, message, Input, Form, Select } from "antd";
+import { Edit, Trash2, Plus, Search, Building2 } from "lucide-react";
 import {
   getAllDistricts,
+  createDistrict,
+  updateDistrict,
   deleteDistrict,
+  getAllRegions,
 } from "../actions";
-import { District } from "@/type";
+import { District, Region } from "@/type";
 
 export default function DistrictsPage() {
   const [districts, setDistricts] = useState<District[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDistrict, setEditingDistrict] = useState<District | null>(null);
+  const [form] = Form.useForm();
 
   const fetchDistricts = async () => {
     try {
@@ -30,7 +37,50 @@ export default function DistrictsPage() {
 
   useEffect(() => {
     fetchDistricts();
+    const fetchRegions = async () => {
+      const data = await getAllRegions();
+      setRegions(data as Region[]);
+    };
+    fetchRegions();
   }, []);
+
+  const handleCreate = () => {
+    setEditingDistrict(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (district: District) => {
+    setEditingDistrict(district);
+    form.setFieldsValue({
+      code: district.code,
+      nom: district.nom,
+      regionId: district.regionId,
+      chefLieu: district.chefLieu || "",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingDistrict) {
+        await updateDistrict(editingDistrict.id, values);
+        message.success("District mis à jour avec succès");
+      } else {
+        await createDistrict(values);
+        message.success("District créé avec succès");
+      }
+      setIsModalOpen(false);
+      form.resetFields();
+      fetchDistricts();
+    } catch (error: any) {
+      if (error.errorFields) {
+        return;
+      }
+      message.error(error.message || "Erreur lors de l'enregistrement");
+    }
+  };
 
   const handleDelete = async (id: string) => {
     Modal.confirm({
@@ -112,9 +162,7 @@ export default function DistrictsPage() {
           <Button
             type="text"
             icon={<Edit className="w-4 h-4" />}
-            onClick={() => {
-              message.info("Fonctionnalité d'édition à venir");
-            }}
+            onClick={() => handleEdit(record)}
           />
           <Button
             type="text"
@@ -145,6 +193,14 @@ export default function DistrictsPage() {
                   Gestion des districts de Madagascar
                 </p>
               </div>
+              <Button
+                type="primary"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={handleCreate}
+                size="large"
+              >
+                Nouveau District
+              </Button>
             </div>
 
             <Card>
@@ -187,6 +243,64 @@ export default function DistrictsPage() {
           </div>
         </main>
       </div>
+
+      <Modal
+        title={editingDistrict ? "Modifier le district" : "Nouveau district"}
+        open={isModalOpen}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        okText={editingDistrict ? "Modifier" : "Créer"}
+        cancelText="Annuler"
+        width={600}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="code"
+            label="Code"
+            rules={[
+              { required: true, message: "Le code est requis" },
+              { max: 10, message: "Le code ne doit pas dépasser 10 caractères" },
+            ]}
+          >
+            <Input placeholder="Code du district" />
+          </Form.Item>
+          <Form.Item
+            name="nom"
+            label="Nom"
+            rules={[
+              { required: true, message: "Le nom est requis" },
+              { max: 100, message: "Le nom ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Nom du district" />
+          </Form.Item>
+          <Form.Item
+            name="regionId"
+            label="Région"
+            rules={[{ required: true, message: "La région est requise" }]}
+          >
+            <Select placeholder="Sélectionner une région" showSearch>
+              {regions.map((region) => (
+                <Select.Option key={region.id} value={region.id}>
+                  {region.nom}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="chefLieu"
+            label="Chef-lieu"
+            rules={[
+              { max: 100, message: "Le chef-lieu ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Chef-lieu du district" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Wrapper>
   );
 }

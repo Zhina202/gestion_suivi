@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, Modal, message, Input } from "antd";
-import { Edit, Trash2, Search, Package } from "lucide-react";
+import { Table, Card, Button, Tag, Space, Modal, message, Input, Form, TextArea } from "antd";
+import { Edit, Trash2, Plus, Search, Package } from "lucide-react";
 import {
   getAllTypeMateriels,
+  createTypeMateriel,
+  updateTypeMateriel,
   deleteTypeMateriel,
 } from "../actions";
 import { TypeMateriel } from "@/type";
@@ -14,6 +16,9 @@ export default function TypesMaterielsPage() {
   const [typesMateriels, setTypesMateriels] = useState<TypeMateriel[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTypeMateriel, setEditingTypeMateriel] = useState<TypeMateriel | null>(null);
+  const [form] = Form.useForm();
 
   const fetchTypesMateriels = async () => {
     try {
@@ -31,6 +36,45 @@ export default function TypesMaterielsPage() {
   useEffect(() => {
     fetchTypesMateriels();
   }, []);
+
+  const handleCreate = () => {
+    setEditingTypeMateriel(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (typeMateriel: TypeMateriel) => {
+    setEditingTypeMateriel(typeMateriel);
+    form.setFieldsValue({
+      code: typeMateriel.code,
+      nom: typeMateriel.nom,
+      categorie: typeMateriel.categorie,
+      description: typeMateriel.description || "",
+      unite: typeMateriel.unite || "unité",
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      if (editingTypeMateriel) {
+        await updateTypeMateriel(editingTypeMateriel.id, values);
+        message.success("Type de matériel mis à jour avec succès");
+      } else {
+        await createTypeMateriel(values);
+        message.success("Type de matériel créé avec succès");
+      }
+      setIsModalOpen(false);
+      form.resetFields();
+      fetchTypesMateriels();
+    } catch (error: any) {
+      if (error.errorFields) {
+        return;
+      }
+      message.error(error.message || "Erreur lors de l'enregistrement");
+    }
+  };
 
   const handleDelete = async (id: string) => {
     Modal.confirm({
@@ -114,9 +158,7 @@ export default function TypesMaterielsPage() {
           <Button
             type="text"
             icon={<Edit className="w-4 h-4" />}
-            onClick={() => {
-              message.info("Fonctionnalité d'édition à venir");
-            }}
+            onClick={() => handleEdit(record)}
           />
           <Button
             type="text"
@@ -147,6 +189,14 @@ export default function TypesMaterielsPage() {
                   Catalogue des types de matériels électoraux
                 </p>
               </div>
+              <Button
+                type="primary"
+                icon={<Plus className="w-4 h-4" />}
+                onClick={handleCreate}
+                size="large"
+              >
+                Nouveau Type
+              </Button>
             </div>
 
             <Card>
@@ -189,6 +239,71 @@ export default function TypesMaterielsPage() {
           </div>
         </main>
       </div>
+
+      <Modal
+        title={editingTypeMateriel ? "Modifier le type de matériel" : "Nouveau type de matériel"}
+        open={isModalOpen}
+        onOk={handleSubmit}
+        onCancel={() => {
+          setIsModalOpen(false);
+          form.resetFields();
+        }}
+        okText={editingTypeMateriel ? "Modifier" : "Créer"}
+        cancelText="Annuler"
+        width={600}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="code"
+            label="Code"
+            rules={[
+              { required: true, message: "Le code est requis" },
+              { max: 20, message: "Le code ne doit pas dépasser 20 caractères" },
+            ]}
+          >
+            <Input placeholder="Code unique du type" />
+          </Form.Item>
+          <Form.Item
+            name="nom"
+            label="Nom"
+            rules={[
+              { required: true, message: "Le nom est requis" },
+              { max: 100, message: "Le nom ne doit pas dépasser 100 caractères" },
+            ]}
+          >
+            <Input placeholder="Ex: Urne électorale, Isoloir, Bulletin de vote" />
+          </Form.Item>
+          <Form.Item
+            name="categorie"
+            label="Catégorie"
+            rules={[
+              { required: true, message: "La catégorie est requise" },
+              { max: 50, message: "La catégorie ne doit pas dépasser 50 caractères" },
+            ]}
+          >
+            <Input placeholder="Ex: Urne, Isoloir, Document, Équipement" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              { max: 500, message: "La description ne doit pas dépasser 500 caractères" },
+            ]}
+          >
+            <TextArea rows={3} placeholder="Description détaillée du type de matériel" />
+          </Form.Item>
+          <Form.Item
+            name="unite"
+            label="Unité de mesure"
+            rules={[
+              { required: true, message: "L'unité est requise" },
+              { max: 20, message: "L'unité ne doit pas dépasser 20 caractères" },
+            ]}
+          >
+            <Input placeholder="Ex: unité, lot, paquet" defaultValue="unité" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Wrapper>
   );
 }

@@ -149,7 +149,7 @@ export default function CreateMaterielPage() {
               >
                 <TextArea 
                   rows={2}
-                  placeholder='Adresse complète de l\'émetteur'
+                  placeholder="Adresse complète de l'émetteur"
                 />
               </Form.Item>
 
@@ -192,7 +192,7 @@ export default function CreateMaterielPage() {
               >
                 <TextArea 
                   rows={3}
-                  placeholder='Notes additionnelles sur l\'expédition'
+                  placeholder="Notes additionnelles sur l'expédition"
                 />
               </Form.Item>
 
