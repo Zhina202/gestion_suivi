@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, Select } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, Select, Modal } from "antd";
 import { Edit, Trash2, Plus, Search, Home } from "lucide-react";
 import {
   getAllCommunes,
@@ -14,7 +14,6 @@ import {
   getDistrictsByRegion,
 } from "../actions";
 import { Commune, District, Region } from "@/type";
-import { confirmDelete } from "../utils/confirmDelete";
 
 export default function CommunesPage() {
   const [communes, setCommunes] = useState<Commune[]>([]);
@@ -113,18 +112,25 @@ export default function CommunesPage() {
   };
 
   const handleDelete = (id: string) => {
-    confirmDelete({
+    Modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer cette commune ?",
-      onConfirm: async () => {
-        await deleteCommune(id);
-      },
-      onSuccess: () => {
-        message.success("Commune supprimée avec succès");
-        fetchCommunes();
-      },
-      onError: () => {
-        message.error("Erreur lors de la suppression");
+      okText: "Supprimer",
+      okType: "danger",
+      cancelText: "Annuler",
+      width: 520,
+      centered: true,
+      maskClosable: false,
+      zIndex: 10000,
+      onOk: async () => {
+        try {
+          await deleteCommune(id);
+          message.success("Commune supprimée avec succès");
+          fetchCommunes();
+        } catch (error) {
+          message.error("Erreur lors de la suppression");
+          throw error;
+        }
       },
     });
   };

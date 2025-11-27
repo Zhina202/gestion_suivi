@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, TextArea } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, TextArea, Modal } from "antd";
 import { Edit, Trash2, Plus, Search, Package } from "lucide-react";
 import {
   getAllTypeMateriels,
@@ -11,7 +11,6 @@ import {
   deleteTypeMateriel,
 } from "../actions";
 import { TypeMateriel } from "@/type";
-import { confirmDelete } from "../utils/confirmDelete";
 
 export default function TypesMaterielsPage() {
   const [typesMateriels, setTypesMateriels] = useState<TypeMateriel[]>([]);
@@ -78,18 +77,25 @@ export default function TypesMaterielsPage() {
   };
 
   const handleDelete = (id: string) => {
-    confirmDelete({
+    Modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer ce type de matériel ?",
-      onConfirm: async () => {
-        await deleteTypeMateriel(id);
-      },
-      onSuccess: () => {
-        message.success("Type de matériel supprimé avec succès");
-        fetchTypesMateriels();
-      },
-      onError: () => {
-        message.error("Erreur lors de la suppression");
+      okText: "Supprimer",
+      okType: "danger",
+      cancelText: "Annuler",
+      width: 520,
+      centered: true,
+      maskClosable: false,
+      zIndex: 10000,
+      onOk: async () => {
+        try {
+          await deleteTypeMateriel(id);
+          message.success("Type de matériel supprimé avec succès");
+          fetchTypesMateriels();
+        } catch (error) {
+          message.error("Erreur lors de la suppression");
+          throw error;
+        }
       },
     });
   };

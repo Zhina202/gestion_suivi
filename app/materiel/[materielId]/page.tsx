@@ -7,11 +7,10 @@ import Sidebar from '@/app/components/Sidebar'
 import { Edit, ArrowLeft, Download, Trash2 } from 'lucide-react'
 import Pdf from '@/app/components/Pdf'
 import Card from '@/app/components/Card'
-import { Badge, Button, Descriptions, Space, message } from 'antd'
+import { Badge, Button, Descriptions, Space, message, Modal } from 'antd'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { deleteMaterielPdf } from '@/app/actions'
-import { confirmDelete } from '@/app/utils/confirmDelete'
 
 const getStatusBadge = (status: number) => {
   switch (status) {
@@ -63,18 +62,25 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
   const handleDelete = () => {
     if (!materielPdf) return;
     
-    confirmDelete({
+    Modal.confirm({
       title: 'Confirmer la suppression',
       content: 'Êtes-vous sûr de vouloir supprimer cette expédition ? Cette action est irréversible.',
-      onConfirm: async () => {
-        await deleteMaterielPdf(materielPdf.id);
-      },
-      onSuccess: () => {
-        message.success('Expédition supprimée avec succès');
-        router.push('/materiels');
-      },
-      onError: () => {
-        message.error('Erreur lors de la suppression');
+      okText: 'Supprimer',
+      okType: 'danger',
+      cancelText: 'Annuler',
+      width: 520,
+      centered: true,
+      maskClosable: false,
+      zIndex: 10000,
+      onOk: async () => {
+        try {
+          await deleteMaterielPdf(materielPdf.id);
+          message.success('Expédition supprimée avec succès');
+          router.push('/materiels');
+        } catch (error) {
+          message.error('Erreur lors de la suppression');
+          throw error;
+        }
       },
     });
   }
