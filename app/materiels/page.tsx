@@ -16,7 +16,7 @@ import { Table, Space, Button, Modal, Badge, Tooltip, Card } from 'antd';
 const getStatusBadge = (status: number) => {
   switch (status) {
     case 1:
-      return <Badge.Ribbon text="Brouillon"><span /></Badge.Ribbon>;
+      return <Badge color="default">Brouillon</Badge>;
     case 2:
       return <Badge color="orange">En transit</Badge>;
     case 3:
@@ -144,12 +144,12 @@ export default function MaterielsPage() {
 
   return (
     <Wrapper>
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div className="hidden md:block md:col-span-1">
+      <div className="flex">
+        <div className="hidden md:block">
           <Sidebar />
         </div>
 
-        <main className="col-span-1 md:col-span-5 px-4 md:px-6">
+        <main className="flex-1 md:ml-60 px-4 md:px-6">
           <div className="flex flex-col space-y-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>

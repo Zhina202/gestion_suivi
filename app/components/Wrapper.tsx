@@ -6,7 +6,7 @@ type WrapperProps = {
 
 const Wrapper = ({children} : WrapperProps ) => {
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '24px 0' }}>
+    <div style={{ minHeight: 'calc(100vh - 64px)', background: '#f5f5f5', padding: '24px 0' }}>
       {children}
     </div>
   )

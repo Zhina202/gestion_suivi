@@ -143,12 +143,12 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
 
   return (
     <Wrapper>
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <div className="hidden md:block md:col-span-1">
+      <div className="flex">
+        <div className="hidden md:block">
           <Sidebar />
         </div>
 
-        <main className="col-span-1 md:col-span-5 px-4 md:px-6">
+        <main className="flex-1 md:ml-60 px-4 md:px-6">
           {/* Header */}
           <div className="mb-6">
             <div className="flex items-center gap-4 mb-4">

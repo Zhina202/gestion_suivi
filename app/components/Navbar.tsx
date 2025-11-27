@@ -25,18 +25,21 @@ const Navbar = () => {
     ]
 
     return (
-        <Header style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 100,
-            height: 64,
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 24px',
-            background: '#ffffff',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            borderBottom: '1px solid rgba(0,0,0,0.06)'
-        }}>
+        <Header 
+            className="md:pl-60"
+            style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 100,
+                height: 64,
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0 24px',
+                background: '#ffffff',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                borderBottom: '1px solid rgba(0,0,0,0.06)'
+            }}
+        >
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <Logo size={40} alt="Logo" />
                 <div>

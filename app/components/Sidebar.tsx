@@ -22,18 +22,11 @@ const Sidebar: React.FC = () => {
   ]
 
   return (
-    <div
-      className="bg-white border-r border-gray-200 shadow-sm"
+    <aside
+      className="bg-white border-r border-gray-200 shadow-sm fixed left-0 bottom-0 overflow-y-auto hidden md:block"
       style={{
-        width: 260,
-        height: 'calc(100vh - 64px)',
-        position: 'sticky',
-        top: '64px',
-        paddingRight: '3rem',
-        marginRight: '2rem',
-        overflow: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
+        width: 240,
+        top: 64,
         zIndex: 30,
       }}
     >
@@ -41,10 +34,10 @@ const Sidebar: React.FC = () => {
         mode="inline" 
         items={items} 
         selectedKeys={[pathname || '/']}
-        style={{ height: '100%', borderRight: '0' }}
+        style={{ height: '100%', borderRight: '0', paddingTop: '8px' }}
         className="border-0"
       />
-    </div>
+    </aside>
   )
 }
 
