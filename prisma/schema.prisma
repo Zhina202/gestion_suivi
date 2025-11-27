@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String @id @default(uuid())
+  name          String
+  email         String @unique
+  materiels     Materiel[] @relation("UserMateriels")
+  materielsPdf  MaterielPdf[]  @relation("UserMaterielPdf")
+}
+
+model MaterielPdf {
+  id             String               @id
+  design         String
+  lieu_depart    String               @default("")
+  lieu_arrive    String               @default("")
+  date_depart    String               @default("")
+  date_arrive    String               @default("")
+  status         Int                  @default(1)
+  nom_emetteur   String               @default("")
+  adresse_emetteur String             @default("")
+  nom_recepteur        String         @default("")   
+  adresse_recepteur    String         @default("") 
+  userId         String?
+  user           User?                 @relation("UserMaterielPdf", fields: [userId], references: [id], onDelete: Cascade)
+  Materiel       Materiel[]            @relation("MaterielPdfMateriels")
+}
+
+model Materiel {
+  id             String               @id @default(uuid())
+  design         String
+  categorie      String               @default("")
+  description    String               @default("")
+  quantity       Int                  @default(0)
+  userId      String?
+  materielPdfId       String?
+  user        User?        @relation("UserMateriels", fields: [userId], references: [id], onDelete: Cascade)
+  pdf         MaterielPdf? @relation("MaterielPdfMateriels", fields: [materielPdfId], references: [id], onDelete: Cascade)
+
+}

@@ -1,0 +1,17 @@
+@import 'antd/dist/reset.css';
+
+/* Tailwind + DaisyUI integration */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Project uses Ant Design + Tailwind/DaisyUI. Add small global overrides here. */
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
