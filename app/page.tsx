@@ -3,6 +3,7 @@ import prisma from "./lib/prisma";
 import DashboardChart from "./components/DashboardChart";
 import Sidebar from "./components/Sidebar";
 import Card from "./components/Card";
+import Wrapper from "./components/Wrapper";
 import Link from "next/link";
 
 const statusLabel = (s: number) => {
@@ -41,42 +42,61 @@ export default async function Home() {
   const counts = { received, damaged, inTransit, lost };
 
   return (
-    <div className="w-full py-6 bg-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
+    <Wrapper>
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <div className="hidden md:block md:col-span-1">
           <Sidebar />
         </div>
 
-  <main className="col-span-1 md:col-span-5 px-4 md:px-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
-              <p className="text-gray-500 mt-1">Vue d'ensemble professionnelle des matériels</p>
-            </div>
+        <main className="col-span-1 md:col-span-5 px-4 md:px-6">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-gray-500 mt-1">Vue d'ensemble des matériels électoraux</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="p-4">
-              <div className="text-sm text-gray-500">Total docs</div>
-              <div className="text-2xl font-bold">{total}</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Total documents</div>
+                  <div className="text-3xl font-bold">{total}</div>
+                </div>
+                <div className="text-4xl opacity-20">📄</div>
+              </div>
             </Card>
             <Card>
-              <div className="text-sm text-gray-500">Reçus</div>
-              <div className="text-2xl font-bold text-green-600">{received}</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Reçus</div>
+                  <div className="text-3xl font-bold text-green-600">{received}</div>
+                </div>
+                <div className="text-4xl opacity-20">✅</div>
+              </div>
             </Card>
             <Card>
-              <div className="text-sm text-gray-500">En transit</div>
-              <div className="text-2xl font-bold text-yellow-500">{inTransit}</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">En transit</div>
+                  <div className="text-3xl font-bold text-orange-600">{inTransit}</div>
+                </div>
+                <div className="text-4xl opacity-20">🚚</div>
+              </div>
             </Card>
             <Card>
-              <div className="text-sm text-gray-500">Perdu / Endommagé</div>
-              <div className="text-2xl font-bold text-red-600">{damaged + lost}</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Perdu / Endommagé</div>
+                  <div className="text-3xl font-bold text-red-600">{damaged + lost}</div>
+                </div>
+                <div className="text-4xl opacity-20">⚠️</div>
+              </div>
             </Card>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <Card>
+                <h3 className="text-lg font-semibold mb-4">Statistiques</h3>
                 {/* DashboardChart is a client component */}
                 {/* @ts-ignore */}
                 <DashboardChart counts={counts} />
@@ -85,27 +105,38 @@ export default async function Home() {
 
             <div>
               <Card>
-                <h3 className="font-semibold mb-2">Récents</h3>
-                <ul className="space-y-2">
-                  {recent.map((r) => (
-                    <li key={r.id} className="flex justify-between items-start">
-                      <div>
-                        <div className="font-medium">MATRI-{r.id}</div>
-                        <div className="text-xs text-gray-500">{r.design || "—"}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm">{statusLabel(r.status)}</div>
-                        <Link href={`/materiel/${r.id}`} className="text-xs text-accent">Ouvrir</Link>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <h3 className="text-lg font-semibold mb-4">Matériels récents</h3>
+                {recent.length === 0 ? (
+                  <div className="text-center text-gray-400 py-8">
+                    <p className="text-sm">Aucun matériel récent</p>
+                  </div>
+                ) : (
+                  <ul className="space-y-3">
+                    {recent.map((r) => (
+                      <li key={r.id} className="flex justify-between items-start p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">MATRI-{r.id}</div>
+                          <div className="text-xs text-gray-500 mt-1">{r.design || "—"}</div>
+                        </div>
+                        <div className="text-right ml-4">
+                          <div className="text-xs font-medium mb-1">{statusLabel(r.status)}</div>
+                          <Link 
+                            href={`/materiel/${r.id}`} 
+                            className="text-xs text-blue-600 hover:text-blue-800"
+                          >
+                            Voir →
+                          </Link>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </Card>
             </div>
           </div>
         </main>
       </div>
-    </div>
+    </Wrapper>
   );
 }
 

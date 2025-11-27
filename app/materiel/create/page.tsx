@@ -1,12 +1,14 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { createEmptyMaterielPdf } from '@/app/actions'
 import { useRouter } from 'next/navigation'
 import confetti from 'canvas-confetti'
-import { Button, Form, Input, message } from 'antd'
+import { Button, Form, Input, message, Card, Space } from 'antd'
+import { ArrowLeft, Plus } from 'lucide-react'
 import Wrapper from '@/app/components/Wrapper'
 import Sidebar from '@/app/components/Sidebar'
+import Link from 'next/link'
 
 export default function CreateMaterielPage() {
   const { user } = useUser()
@@ -15,16 +17,19 @@ export default function CreateMaterielPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const onFinish = async (values: { name: string }) => {
-    if (!email) return
+    if (!email) {
+      message.error('Vous devez être connecté pour créer un matériel')
+      return
+    }
     setIsSubmitting(true)
     try {
       await createEmptyMaterielPdf(email, values.name)
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 9999 })
-      message.success('Matériel créé')
+      message.success('Matériel créé avec succès')
       router.push('/materiels')
     } catch (err) {
       console.error(err)
-      message.error('Erreur lors de la création')
+      message.error('Erreur lors de la création du matériel')
     } finally {
       setIsSubmitting(false)
     }
@@ -37,29 +42,61 @@ export default function CreateMaterielPage() {
           <Sidebar />
         </div>
 
-  <main className="col-span-1 md:col-span-5 px-4 md:px-6">
-          {/* Full-width page look: no border, no card shadow */}
-          <div className='p-6'>
-            <h1 className='text-2xl font-semibold mb-4'>Créer un nouveau matériel</h1>
-            <Form layout='vertical' onFinish={onFinish}>
+        <main className="col-span-1 md:col-span-5 px-4 md:px-6">
+          <div className="mb-6">
+            <div className="flex items-center gap-4 mb-4">
+              <Link href="/materiels">
+                <Button type="text" icon={<ArrowLeft className="w-4 h-4" />} />
+              </Link>
+              <div>
+                <h1 className="text-3xl font-bold">Créer un nouveau matériel</h1>
+                <p className="text-gray-500 mt-1">Ajoutez un nouveau matériel électoral au système</p>
+              </div>
+            </div>
+          </div>
+
+          <Card className="max-w-2xl">
+            <Form 
+              layout='vertical' 
+              onFinish={onFinish}
+              size="large"
+            >
               <Form.Item
                 name='name'
-                label='Nom du matériel (max 50 caractères)'
-                rules={[{ required: true, message: 'Veuillez saisir le nom' }, { max: 50, message: 'Le nom ne peut pas dépasser 50 caractères' }]}
+                label={<span className="font-semibold">Nom du matériel</span>}
+                rules={[
+                  { required: true, message: 'Veuillez saisir le nom du matériel' }, 
+                  { max: 50, message: 'Le nom ne peut pas dépasser 50 caractères' }
+                ]}
+                help="Le nom doit être unique et descriptif (maximum 50 caractères)"
               >
-                <Input placeholder='Nom du matériel' />
+                <Input 
+                  placeholder='Ex: Matériel électoral - Bureau de vote 001' 
+                  prefix={<Plus className="w-4 h-4 text-gray-400" />}
+                />
               </Form.Item>
 
-              <Form.Item>
-                <div className='flex gap-3'>
-                  <Button type='primary' htmlType='submit' loading={isSubmitting}>
-                    Créer
+              <Form.Item className="mb-0">
+                <Space>
+                  <Button 
+                    type='primary' 
+                    htmlType='submit' 
+                    loading={isSubmitting}
+                    icon={<Plus className="w-4 h-4" />}
+                    size="large"
+                  >
+                    Créer le matériel
                   </Button>
-                  <Button onClick={() => router.push('/materiels')}>Annuler</Button>
-                </div>
+                  <Button 
+                    onClick={() => router.push('/materiels')}
+                    size="large"
+                  >
+                    Annuler
+                  </Button>
+                </Space>
               </Form.Item>
             </Form>
-          </div>
+          </Card>
         </main>
       </div>
     </Wrapper>

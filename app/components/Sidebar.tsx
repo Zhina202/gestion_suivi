@@ -1,34 +1,49 @@
+"use client"
 import React from 'react'
 import { Menu } from 'antd'
 import Link from 'next/link'
-import Logo from './Logo'
+import { usePathname } from 'next/navigation'
+import { LayoutDashboard, Package } from 'lucide-react'
 
 const Sidebar: React.FC = () => {
+  const pathname = usePathname()
+
   const items = [
-    { key: '/', label: <Link href="/">Dashboard</Link> },
-    { key: '/materiels', label: <Link href="/materiels">Matériels</Link> },
+    { 
+      key: '/', 
+      label: <Link href="/">Dashboard</Link>,
+      icon: <LayoutDashboard className="w-4 h-4" />
+    },
+    { 
+      key: '/materiels', 
+      label: <Link href="/materiels">Matériels</Link>,
+      icon: <Package className="w-4 h-4" />
+    },
   ]
 
   return (
-    // Make sidebar full viewport height (accounting for top navbar), sticky and add right padding so main content has space
     <div
+      className="bg-white border-r border-gray-200 shadow-sm"
       style={{
         width: 260,
-        height: 'calc(100vh - 48px)',
+        height: 'calc(100vh - 64px)',
         position: 'sticky',
-        top: '48px',
+        top: '64px',
         paddingRight: '3rem',
         marginRight: '2rem',
         overflow: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        background: '#ffffff',
-        borderRight: '1px solid rgba(0,0,0,0.06)',
-        boxShadow: '0 1px 0 rgba(0,0,0,0.04)',
         zIndex: 30,
       }}
     >
-        <Menu mode="inline" items={items} style={{ height: '100%', borderRight: '0' }} />
+      <Menu 
+        mode="inline" 
+        items={items} 
+        selectedKeys={[pathname || '/']}
+        style={{ height: '100%', borderRight: '0' }}
+        className="border-0"
+      />
     </div>
   )
 }

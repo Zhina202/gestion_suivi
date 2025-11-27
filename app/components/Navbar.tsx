@@ -25,27 +25,27 @@ const Navbar = () => {
     ]
 
     return (
-        // Use antd Header so we can use Menu; keep header sticky and with a solid background + zIndex
         <Header style={{
             position: 'sticky',
             top: 0,
             zIndex: 100,
-            height: 48,
+            height: 64,
             display: 'flex',
             alignItems: 'center',
-            padding: '0 20px',
+            padding: '0 24px',
             background: '#ffffff',
-            boxShadow: '0 1px 0 rgba(0,0,0,0.04)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            borderBottom: '1px solid rgba(0,0,0,0.06)'
         }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Logo size={32} alt="Logo" />
-
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <Logo size={40} alt="Logo" />
                 <div>
-                    <div className="font-semibold">CE<span className="text-accent">NI</span></div>
+                    <div className="font-bold text-lg">CE<span className="text-blue-600">NI</span></div>
+                    <div className="text-xs text-gray-500">Gestion de suivi</div>
                 </div>
             </div>
 
-            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16 }}>
                 <UserButton />
             </div>
         </Header>

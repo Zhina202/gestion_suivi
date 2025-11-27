@@ -14,60 +14,67 @@ const MaterielPdfInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
             setMaterielPdf({...materielPdf , [field]: e.target.value})
         }
     return (
-        <div className='flex flex-col h-fit bg-base-200 p-5 rounded-xl mb-4 md:mb-0'>
-                <Form layout='vertical'>
-                    <h2 className='font-bold'>Emetteur</h2>
-                    <Form.Item label='Nom de l’émetteur' required>
+        <div className='flex flex-col h-fit'>
+            <Form layout='vertical' size="large">
+                <div className="mb-6">
+                    <h2 className='text-lg font-bold mb-4 pb-2 border-b'>Émetteur</h2>
+                    <Form.Item label={<span className="font-semibold">Nom de l'émetteur</span>}>
                         <Input
-                                value={materielPdf?.nom_emetteur}
-                                placeholder="Veuillez saisir le nom de l’émetteur"
-                                onChange={(e) => handleInputChange(e as any , 'nom_emetteur')}
+                            value={materielPdf?.nom_emetteur || ''}
+                            placeholder="Nom de l'émetteur"
+                            onChange={(e) => handleInputChange(e as any, 'nom_emetteur')}
                         />
                     </Form.Item>
 
-                    <Form.Item label='Adresse de l’émetteur' required>
+                    <Form.Item label={<span className="font-semibold">Adresse de l'émetteur</span>}>
                         <Input.TextArea
-                            value={materielPdf?.adresse_emetteur}
-                            placeholder="Veuillez saisir l’adresse de l’émetteur"
+                            value={materielPdf?.adresse_emetteur || ''}
+                            placeholder="Adresse complète de l'émetteur"
                             rows={4}
-                            onChange={(e) => handleInputChange(e as any , 'adresse_emetteur')}
+                            onChange={(e) => handleInputChange(e as any, 'adresse_emetteur')}
                         />
                     </Form.Item>
+                </div>
 
-                    <h2 className='font-bold'>Récepteur</h2>
-                    <Form.Item label='Nom du récepteur' required>
+                <div className="mb-6">
+                    <h2 className='text-lg font-bold mb-4 pb-2 border-b'>Récepteur</h2>
+                    <Form.Item label={<span className="font-semibold">Nom du récepteur</span>}>
                         <Input
-                                value={materielPdf?.nom_recepteur}
-                                placeholder="Veuillez saisir le nom du récepteur"
-                                onChange={(e) => handleInputChange(e as any , 'nom_recepteur')}
+                            value={materielPdf?.nom_recepteur || ''}
+                            placeholder="Nom du récepteur"
+                            onChange={(e) => handleInputChange(e as any, 'nom_recepteur')}
                         />
                     </Form.Item>
 
-                    <Form.Item label='Adresse du récepteur' required>
+                    <Form.Item label={<span className="font-semibold">Adresse du récepteur</span>}>
                         <Input.TextArea
-                            value={materielPdf?.adresse_recepteur}
-                            placeholder="Veuillez saisir l’adresse du récepteur"
+                            value={materielPdf?.adresse_recepteur || ''}
+                            placeholder="Adresse complète du récepteur"
                             rows={4}
-                            onChange={(e) => handleInputChange(e as any , 'adresse_recepteur')}
+                            onChange={(e) => handleInputChange(e as any, 'adresse_recepteur')}
+                        />
+                    </Form.Item>
+                </div>
+
+                <div>
+                    <h2 className='text-lg font-bold mb-4 pb-2 border-b'>Dates</h2>
+                    <Form.Item label={<span className="font-semibold">Date de départ</span>}>
+                        <Input
+                            type="date"
+                            value={materielPdf?.date_depart || ''}
+                            onChange={(e) => handleInputChange(e as any, 'date_depart')}
                         />
                     </Form.Item>
 
-                    <Form.Item label='Date de départ' required>
+                    <Form.Item label={<span className="font-semibold">Date d'arrivée</span>}>
                         <Input
-                                type="date"
-                                value={materielPdf?.date_depart}
-                                onChange={(e) => handleInputChange(e as any , 'date_depart')}
+                            type="date"
+                            value={materielPdf?.date_arrive || ''}
+                            onChange={(e) => handleInputChange(e as any, 'date_arrive')}
                         />
                     </Form.Item>
-
-                    <Form.Item label='Date d’arrivée' required>
-                        <Input
-                                type="date"
-                                value={materielPdf?.date_arrive}
-                                onChange={(e) => handleInputChange(e as any , 'date_arrive')}
-                        />
-                    </Form.Item>
-                </Form>
+                </div>
+            </Form>
         </div>
     )
 }

@@ -62,67 +62,95 @@ const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
     }
 
   return (
-    <div className='h-fit bg-base-200 p-5 rounded-xl w-full'>
-        <div className='flex justify-between items-center mb-4'>
-            <h2  className='font-bold'>Matériel électoral</h2>
-            <Button type="default" size="small" onClick={handleAddLine} icon={<Plus />} title='Ajouter une ligne' aria-label='Ajouter une ligne' />
+    <div className='h-fit w-full'>
+        <div className='flex justify-between items-center mb-6'>
+            <h2 className='text-lg font-bold'>Matériel électoral</h2>
+            <Button 
+                type="primary" 
+                size="large" 
+                onClick={handleAddLine} 
+                icon={<Plus className="w-4 h-4" />} 
+                title='Ajouter une ligne' 
+                aria-label='Ajouter une ligne' 
+            >
+                Ajouter
+            </Button>
         </div>
 
-        <div className='scrollable'>
-            <table className='table table-full'>
-                <thead className='capitalize font-normal'>
-                    <tr>
-                        <th>design</th>
-                        <th>categorie</th>
-                        <th>description</th>
-                        <th>quantity</th>
-                        <th></th>
+        <div className='overflow-x-auto'>
+            <table className='w-full border-collapse'>
+                <thead>
+                    <tr className='border-b border-gray-200 bg-gray-50'>
+                        <th className='text-left p-3 font-semibold text-sm'>Design</th>
+                        <th className='text-left p-3 font-semibold text-sm'>Catégorie</th>
+                        <th className='text-left p-3 font-semibold text-sm'>Description</th>
+                        <th className='text-left p-3 font-semibold text-sm'>Quantité</th>
+                        <th className='text-right p-3 font-semibold text-sm'>Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                                        {materielPdf.materiels?.map((materiel , index) => (
-                                                <tr key={materiel.id}>
-                                                    <td>
-                                                        <div className='flex items-center gap-2'>
-                                                            <Input
-                                                                value={materiel.design}
-                                                                onChange={(e) => handleDesignChange(index, e.target.value)}
-                                                                placeholder='Design du matériel'
-                                                                aria-label={`Design du matériel ${index + 1}`}
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <Input
-                                                            value={materiel.categorie}
-                                                            onChange={(e) => handleCategorieChange(index, e.target.value)}
-                                                            placeholder='Catégorie'
-                                                            aria-label={`Catégorie du matériel ${index + 1}`}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Input
-                                                            value={materiel.description}
-                                                            onChange={(e) => handleDescriptionChange(index, e.target.value)}
-                                                            placeholder='Description'
-                                                            aria-label={`Description du matériel ${index + 1}`}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <InputNumber
-                                                            value={materiel.quantity}
-                                                            min={0}
-                                                            onChange={(val) => handleQuantityChange(index, String(val || 0))}
-                                                            style={{ width: '100%' }}
-                                                            aria-label={`Quantité du matériel ${index + 1}`}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Button danger shape="circle" size="small" onClick={() => handleRemoveLine(index)} icon={<Trash />} title='Supprimer la ligne' aria-label={`Supprimer la ligne ${index + 1}`} />
-                                                    </td>
-                                                </tr>
-                                            ))}
+                    {materielPdf.materiels?.map((materiel, index) => (
+                        <tr key={materiel.id} className='border-b border-gray-100 hover:bg-gray-50 transition-colors'>
+                            <td className='p-3'>
+                                <Input
+                                    value={materiel.design}
+                                    onChange={(e) => handleDesignChange(index, e.target.value)}
+                                    placeholder='Design du matériel'
+                                    aria-label={`Design du matériel ${index + 1}`}
+                                    size="large"
+                                />
+                            </td>
+                            <td className='p-3'>
+                                <Input
+                                    value={materiel.categorie}
+                                    onChange={(e) => handleCategorieChange(index, e.target.value)}
+                                    placeholder='Catégorie'
+                                    aria-label={`Catégorie du matériel ${index + 1}`}
+                                    size="large"
+                                />
+                            </td>
+                            <td className='p-3'>
+                                <Input
+                                    value={materiel.description}
+                                    onChange={(e) => handleDescriptionChange(index, e.target.value)}
+                                    placeholder='Description'
+                                    aria-label={`Description du matériel ${index + 1}`}
+                                    size="large"
+                                />
+                            </td>
+                            <td className='p-3'>
+                                <InputNumber
+                                    value={materiel.quantity}
+                                    min={0}
+                                    onChange={(val) => handleQuantityChange(index, String(val || 0))}
+                                    style={{ width: '100%' }}
+                                    aria-label={`Quantité du matériel ${index + 1}`}
+                                    size="large"
+                                />
+                            </td>
+                            <td className='p-3'>
+                                <div className='flex justify-end'>
+                                    <Button 
+                                        danger 
+                                        type="text"
+                                        size="large"
+                                        onClick={() => handleRemoveLine(index)} 
+                                        icon={<Trash className="w-4 h-4" />} 
+                                        title='Supprimer la ligne' 
+                                        aria-label={`Supprimer la ligne ${index + 1}`} 
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                    {(!materielPdf.materiels || materielPdf.materiels.length === 0) && (
+                        <tr>
+                            <td colSpan={5} className='p-8 text-center text-gray-400'>
+                                Aucun matériel ajouté. Cliquez sur "Ajouter" pour commencer.
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </div>

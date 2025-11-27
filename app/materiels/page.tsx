@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Layers } from "lucide-react";
+import { Layers, Edit, Trash2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createEmptyMaterielPdf, getMaterielPdfByEmail } from "@/app/actions";
 import { useUser } from "@clerk/nextjs";
@@ -11,7 +11,7 @@ import { MaterielPdf } from "@/type";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { Table, Space, Button, Modal, Badge } from 'antd';
+import { Table, Space, Button, Modal, Badge, Tooltip, Card } from 'antd';
 
 const getStatusBadge = (status: number) => {
   switch (status) {
@@ -28,6 +28,23 @@ const getStatusBadge = (status: number) => {
     default:
       return <Badge>Indéfini</Badge>;
   }
+};
+
+const getCategoryBadges = (materielPdf: MaterielPdf) => {
+  const materiels = materielPdf.Materiel || materielPdf.materiels || [];
+  const categories = [...new Set(materiels.map(m => m.categorie).filter(c => c && c.trim() !== ''))];
+  
+  if (categories.length === 0) {
+    return <span className="text-gray-400 text-sm">Aucune catégorie</span>;
+  }
+  
+  return (
+    <Space size="small" wrap>
+      {categories.map((categorie, index) => (
+        <Badge key={index} color="blue">{categorie}</Badge>
+      ))}
+    </Space>
+  );
 };
 
 const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void }> = ({ data, onDeleted }) => {
@@ -54,13 +71,27 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void }> =
   const columns: any = [
     { title: 'ID', dataIndex: 'id', key: 'id', render: (id: string) => `MATRI-${id}` },
     { title: 'Nom', dataIndex: 'design', key: 'design' },
+    { title: 'Types', key: 'types', render: (_: any, record: MaterielPdf) => getCategoryBadges(record) },
     { title: 'Statut', dataIndex: 'status', key: 'status', render: (s: number) => getStatusBadge(s) },
     { title: 'Date départ', dataIndex: 'date_depart', key: 'date_depart' },
     { title: 'Actions', key: 'actions', render: (_: any, record: any) => (
       <Space>
-        <Link href={`/materiel/${record.id}`}><Button type="link">Voir</Button></Link>
-        <Link href={`/materiel/${record.id}/edit`}><Button type="default">Éditer</Button></Link>
-  <Button danger onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); handleDelete(record.id); }}>Suppr.</Button>
+        <Tooltip title="Éditer">
+          <Link href={`/materiel/${record.id}/edit`} onClick={(e) => e.stopPropagation()}>
+            <Button type="text" icon={<Edit className="w-4 h-4" />} />
+          </Link>
+        </Tooltip>
+        <Tooltip title="Supprimer">
+          <Button 
+            type="text" 
+            danger 
+            icon={<Trash2 className="w-4 h-4" />}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { 
+              e.stopPropagation(); 
+              handleDelete(record.id); 
+            }} 
+          />
+        </Tooltip>
       </Space>
     ), align: 'right' }
   ];
@@ -118,27 +149,42 @@ export default function MaterielsPage() {
           <Sidebar />
         </div>
 
-  <main className="col-span-1 md:col-span-5 px-4 md:px-6">
+        <main className="col-span-1 md:col-span-5 px-4 md:px-6">
           <div className="flex flex-col space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Matériels</h1>
-            <p className="text-sm text-gray-500">Liste et gestion des matériels</p>
-          </div>
-          <div>
-            <Link href="/materiel/create"><Button type='default'>Ajouter un matériel</Button></Link>
-          </div>
-        </div>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-3xl font-bold">Matériels</h1>
+                <p className="text-gray-500 mt-1">Liste et gestion des matériels électoraux</p>
+              </div>
+              <div>
+                <Link href="/materiel/create">
+                  <Button type='primary' size="large" icon={<Plus className="w-4 h-4" />}>
+                    Ajouter un matériel
+                  </Button>
+                </Link>
+              </div>
+            </div>
 
-        <div className="w-full overflow-x-auto">
-          {materielsPdf.length === 0 ? (
-            <div className="col-span-full text-center text-sm text-gray-500">Aucun matériel trouvé. Créez-en un pour commencer.</div>
-          ) : (
-            <MaterielsTable data={materielsPdf} onDeleted={() => fetchMaterielPdf()} />
-          )}
-        </div>
-
-        {/* Creation moved to dedicated page /materiel/create */}
+            <div className="w-full">
+              {materielsPdf.length === 0 ? (
+                <Card>
+                  <div className="text-center py-12">
+                    <Layers className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Aucun matériel trouvé</h3>
+                    <p className="text-gray-500 mb-6">Créez votre premier matériel pour commencer</p>
+                    <Link href="/materiel/create">
+                      <Button type="primary" icon={<Plus className="w-4 h-4" />}>
+                        Créer un matériel
+                      </Button>
+                    </Link>
+                  </div>
+                </Card>
+              ) : (
+                <Card>
+                  <MaterielsTable data={materielsPdf} onDeleted={() => fetchMaterielPdf()} />
+                </Card>
+              )}
+            </div>
           </div>
         </main>
       </div>

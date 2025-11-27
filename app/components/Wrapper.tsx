@@ -8,9 +8,8 @@ type WrapperProps = {
 
 const Wrapper = ({children} : WrapperProps ) => {
   return (
-    // Keep layout but remove the per-page Header to avoid duplicating the global Navbar
-    <Layout style={{ minHeight: '100vh' }}>
-      <Content style={{ padding: 16 }}>
+    <Layout style={{ minHeight: '100vh', background: '#f5f5f5' }}>
+      <Content style={{ padding: '24px 0' }}>
         {children}
       </Content>
     </Layout>
