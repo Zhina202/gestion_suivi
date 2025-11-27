@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, TextArea, App } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, TextArea, App, Modal } from "antd";
 import { Edit, Trash2, Plus, Search, Package } from "lucide-react";
 import {
   getAllTypeMateriels,

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Space, message, Input, Form, App } from "antd";
+import { Table, Card, Button, Space, message, Input, Form, App, Modal } from "antd";
 import { Edit, Trash2, Plus, Search, MapPin } from "lucide-react";
 import {
   getAllRegions,
