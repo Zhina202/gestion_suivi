@@ -113,7 +113,7 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
   ];
 
   return (
-    <div className="overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6">
+    <div className="overflow-x-auto w-full">
       <Table
         columns={columns}
         dataSource={filteredData.map(d => ({ ...d, key: d.id }))}
@@ -218,7 +218,7 @@ export default function MaterielsPage() {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-60 px-4 md:px-6 max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 md:ml-60 px-4 md:px-6 w-full">
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>

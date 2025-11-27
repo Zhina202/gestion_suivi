@@ -125,7 +125,7 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-60 px-4 md:px-6 max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 md:ml-60 px-4 md:px-6 w-full">
           {/* Header */}
           <div className="mb-4 md:mb-6">
             <div className="flex items-center gap-2 md:gap-4 mb-4">
@@ -209,8 +209,8 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           {materielPdf.materiels && materielPdf.materiels.length > 0 && (
             <Card className="mb-6">
               <h2 className="text-lg md:text-xl font-semibold mb-4">Matériels électoraux</h2>
-              <div className="overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6">
-                <table className="w-full border-collapse min-w-full">
+              <div className="overflow-x-auto w-full">
+                <table className="w-full border-collapse" style={{ minWidth: '100%' }}>
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50">
                       <th className="text-left p-2 md:p-3 text-xs md:text-sm font-semibold">#</th>

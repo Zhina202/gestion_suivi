@@ -148,7 +148,7 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-60 px-4 md:px-6 max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 md:ml-60 px-4 md:px-6 w-full">
           {/* Header */}
           <div className="mb-4 md:mb-6">
             <div className="flex items-center gap-2 md:gap-4 mb-4">

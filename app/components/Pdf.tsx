@@ -80,8 +80,8 @@ const Pdf: React.FC<PdfProps> = (
                     </Button>
                 </div>
 
-                <div className='overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6'>
-                    <div className='bg-white p-6 md:p-10 rounded-lg border border-gray-200 shadow-sm' ref={materielRef} style={{ minWidth: '210mm', maxWidth: '100%', width: 'fit-content' }}>
+                <div className='w-full overflow-x-auto'>
+                    <div className='bg-white p-6 md:p-10 rounded-lg border border-gray-200 shadow-sm w-full' ref={materielRef} style={{ maxWidth: '100%' }}>
                     {/* Header */}
                     <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b-2 border-gray-300'>
                         <div className='flex items-center mb-4 md:mb-0'>
@@ -129,8 +129,8 @@ const Pdf: React.FC<PdfProps> = (
 
                     {/* Tableau des matériels */}
                     {materielPdf.materiels && materielPdf.materiels.length > 0 && (
-                        <div className='overflow-x-auto'>
-                            <table className='w-full border-collapse border border-gray-300'>
+                        <div className='overflow-x-auto w-full'>
+                            <table className='w-full border-collapse border border-gray-300' style={{ minWidth: '100%' }}>
                                 <thead>
                                     <tr className='bg-gray-100'>
                                         <th className='border border-gray-300 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-12'>#</th>

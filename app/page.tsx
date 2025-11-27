@@ -48,7 +48,7 @@ export default async function Home() {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-60 px-4 md:px-6 max-w-[1600px] mx-auto w-full">
+        <main className="flex-1 md:ml-60 px-4 md:px-6 w-full">
           <div className="mb-4 md:mb-6">
             <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
             <p className="text-gray-500 mt-1 text-sm md:text-base">Vue d'ensemble des matériels électoraux</p>

@@ -12,6 +12,7 @@ const Wrapper = ({children} : WrapperProps ) => {
       padding: '24px 0', 
       marginTop: '64px',
       width: '100%',
+      maxWidth: '100vw',
       overflowX: 'hidden'
     }}>
       {children}

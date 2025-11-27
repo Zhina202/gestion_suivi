@@ -77,8 +77,8 @@ const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
             </Button>
         </div>
 
-        <div className='overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6'>
-            <table className='w-full border-collapse min-w-full'>
+        <div className='overflow-x-auto w-full'>
+            <table className='w-full border-collapse' style={{ minWidth: '100%' }}>
                 <thead>
                     <tr className='border-b border-gray-200 bg-gray-50'>
                         <th className='text-left p-3 font-semibold text-sm'>Design</th>
