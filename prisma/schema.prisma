@@ -1,3 +1,4 @@
+// Schéma de base de données pour la gestion des matériels électoraux de la CENI Madagascar
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -10,40 +11,222 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Utilisateurs du système (agents CENI)
 model User {
-  id            String @id @default(uuid())
+  id            String       @id @default(uuid())
   name          String
-  email         String @unique
-  materiels     Materiel[] @relation("UserMateriels")
-  materielsPdf  MaterielPdf[]  @relation("UserMaterielPdf")
+  email         String       @unique
+  role          UserRole     @default(AGENT)
+  phone         String?
+  fonction      String?      // Fonction dans la CENI
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  // Relations
+  expeditions   Expedition[] @relation("UserExpeditions")
+  materiels     Materiel[]   @relation("UserMateriels")
+  mouvements    Mouvement[]  @relation("UserMouvements")
 }
 
-model MaterielPdf {
-  id             String               @id
-  design         String
-  lieu_depart    String               @default("")
-  lieu_arrive    String               @default("")
-  date_depart    String               @default("")
-  date_arrive    String               @default("")
-  status         Int                  @default(1)
-  nom_emetteur   String               @default("")
-  adresse_emetteur String             @default("")
-  nom_recepteur        String         @default("")   
-  adresse_recepteur    String         @default("") 
-  userId         String?
-  user           User?                 @relation("UserMaterielPdf", fields: [userId], references: [id], onDelete: Cascade)
-  Materiel       Materiel[]            @relation("MaterielPdfMateriels")
+enum UserRole {
+  ADMIN          // Administrateur système
+  DIRECTEUR      // Directeur régional
+  RESPONSABLE    // Responsable de district
+  AGENT          // Agent de terrain
 }
 
+// Régions de Madagascar (22 régions)
+model Region {
+  id          String      @id @default(uuid())
+  code        String      @unique // Code officiel de la région
+  nom         String      @unique
+  chefLieu    String?     // Chef-lieu de la région
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  districts   District[]
+  expeditions Expedition[] @relation("RegionExpeditions")
+}
+
+// Districts (119 districts)
+model District {
+  id          String      @id @default(uuid())
+  code        String      @unique // Code officiel du district
+  nom         String
+  regionId    String
+  chefLieu    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  region      Region      @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  communes    Commune[]
+  expeditions Expedition[] @relation("DistrictExpeditions")
+}
+
+// Communes
+model Commune {
+  id          String      @id @default(uuid())
+  code        String      @unique
+  nom         String
+  districtId  String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  district    District    @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  centresVote CentreVote[]
+  expeditions Expedition[] @relation("CommuneExpeditions")
+}
+
+// Centres de vote
+model CentreVote {
+  id          String      @id @default(uuid())
+  code        String      @unique
+  nom         String
+  adresse     String?
+  communeId   String
+  capacite    Int?        // Nombre d'électeurs
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  commune     Commune     @relation(fields: [communeId], references: [id], onDelete: Cascade)
+  expeditions Expedition[] @relation("CentreVoteExpeditions")
+}
+
+// Types de matériels électoraux (catalogue)
+model TypeMateriel {
+  id          String      @id @default(uuid())
+  code        String      @unique // Code unique du type
+  nom         String      @unique // Ex: "Urne électorale", "Isoloir", "Bulletin de vote"
+  categorie   String      // Ex: "Urne", "Isoloir", "Document", "Équipement"
+  description String?
+  unite       String      @default("unité") // Unité de mesure: unité, lot, paquet, etc.
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  materiels   Materiel[]
+}
+
+// Expéditions/Lots de matériels (remplace MaterielPdf)
+model Expedition {
+  id                String          @id @default(uuid())
+  numero            String          @unique // Numéro d'expédition unique (ex: EXP-2024-001)
+  designation       String          // Nom/description de l'expédition
+  
+  // Informations de départ
+  lieuDepart        String          // Lieu de départ
+  dateDepart        DateTime?
+  nomEmetteur       String?
+  adresseEmetteur   String?
+  
+  // Informations d'arrivée
+  lieuArrive        String          // Lieu d'arrivée
+  dateArrive        DateTime?
+  nomRecepteur      String?
+  adresseRecepteur  String?
+  
+  // Statut de l'expédition
+  status            ExpeditionStatus @default(BROUILLON)
+  
+  // Localisation géographique
+  regionId          String?
+  districtId        String?
+  communeId         String?
+  centreVoteId      String?
+  
+  // Utilisateur responsable
+  userId            String?
+  
+  // Métadonnées
+  notes             String?         // Notes additionnelles
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  // Relations
+  user              User?           @relation("UserExpeditions", fields: [userId], references: [id], onDelete: SetNull)
+  region            Region?          @relation("RegionExpeditions", fields: [regionId], references: [id], onDelete: SetNull)
+  district          District?        @relation("DistrictExpeditions", fields: [districtId], references: [id], onDelete: SetNull)
+  commune           Commune?         @relation("CommuneExpeditions", fields: [communeId], references: [id], onDelete: SetNull)
+  centreVote        CentreVote?      @relation("CentreVoteExpeditions", fields: [centreVoteId], references: [id], onDelete: SetNull)
+  materiels         Materiel[]       @relation("ExpeditionMateriels")
+  mouvements        Mouvement[]      @relation("ExpeditionMouvements")
+}
+
+enum ExpeditionStatus {
+  BROUILLON      // Brouillon - en préparation
+  EN_TRANSIT     // En transit - matériel en cours d'acheminement
+  RECU           // Reçu - matériel arrivé à destination
+  DISTRIBUE      // Distribué - matériel distribué aux centres de vote
+  RETOURNE       // Retourné - matériel retourné après élection
+  ENDOMMAGE      // Endommagé - matériel cassé ou nécessitant réparation
+  PERDU          // Perdu - matériel manquant ou introuvable
+  ARCHIVE        // Archivé - expédition terminée et archivée
+}
+
+// Matériels individuels dans une expédition
 model Materiel {
-  id             String               @id @default(uuid())
-  design         String
-  categorie      String               @default("")
-  description    String               @default("")
-  quantity       Int                  @default(0)
-  userId      String?
-  materielPdfId       String?
-  user        User?        @relation("UserMateriels", fields: [userId], references: [id], onDelete: Cascade)
-  pdf         MaterielPdf? @relation("MaterielPdfMateriels", fields: [materielPdfId], references: [id], onDelete: Cascade)
+  id              String      @id @default(uuid())
+  designation     String      // Désignation du matériel
+  typeMaterielId  String?     // Référence au type de matériel
+  categorie       String?     // Catégorie (pour compatibilité)
+  description     String?     // Description détaillée
+  quantite        Int         @default(1) // Quantité
+  quantiteRecue   Int?        // Quantité réellement reçue
+  quantiteUtilisee Int?       // Quantité utilisée
+  
+  // Statut individuel du matériel
+  statut          MaterielStatut @default(BON)
+  
+  // Relations
+  userId          String?
+  expeditionId   String?
+  typeMateriel   TypeMateriel? @relation(fields: [typeMaterielId], references: [id], onDelete: SetNull)
+  user           User?         @relation("UserMateriels", fields: [userId], references: [id], onDelete: SetNull)
+  expedition     Expedition?   @relation("ExpeditionMateriels", fields: [expeditionId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
 
+enum MaterielStatut {
+  BON           // Matériel en bon état
+  ENDOMMAGE     // Matériel endommagé
+  MANQUANT      // Matériel manquant
+  PERDU         // Matériel perdu
+  REPARE        // Matériel réparé
+}
+
+// Historique des mouvements et changements de statut
+model Mouvement {
+  id              String          @id @default(uuid())
+  expeditionId   String
+  type            MouvementType
+  statutAvant    String?         // Statut avant le mouvement
+  statutApres    String          // Nouveau statut
+  lieu            String?         // Lieu du mouvement
+  date            DateTime        @default(now())
+  notes           String?         // Notes sur le mouvement
+  
+  // Utilisateur ayant effectué le mouvement
+  userId          String?
+  
+  // Relations
+  expedition     Expedition       @relation("ExpeditionMouvements", fields: [expeditionId], references: [id], onDelete: Cascade)
+  user           User?            @relation("UserMouvements", fields: [userId], references: [id], onDelete: SetNull)
+  
+  createdAt       DateTime        @default(now())
+}
+
+enum MouvementType {
+  CREATION        // Création de l'expédition
+  ENVOI           // Envoi du matériel
+  RECEPTION       // Réception du matériel
+  DISTRIBUTION    // Distribution aux centres de vote
+  RETOUR          // Retour du matériel
+  CHANGEMENT_STATUT // Changement de statut
+  CORRECTION      // Correction de données
 }

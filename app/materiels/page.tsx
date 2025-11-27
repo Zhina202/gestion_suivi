@@ -216,18 +216,33 @@ export default function MaterielsPage() {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-60 px-4 md:px-6 w-full">
+        <main className="flex-1 md:ml-[260px] px-4 md:px-6 w-full">
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold">Matériels</h1>
-                <p className="text-gray-500 mt-1 text-sm md:text-base">Liste et gestion des matériels électoraux</p>
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-10 bg-gradient-to-b from-[#DC143C] to-[#B71C1C] rounded-full"></div>
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Expéditions</h1>
+                  <p className="text-gray-600 mt-1 text-sm md:text-base">Gestion et suivi des matériels électoraux</p>
+                </div>
               </div>
               <div className="w-full sm:w-auto">
                 <Link href="/materiel/create" className="block">
-                  <Button type='primary' size="large" icon={<Plus className="w-4 h-4" />} block className="sm:inline-block">
-                    <span className="hidden sm:inline">Ajouter un matériel</span>
-                    <span className="sm:hidden">Ajouter</span>
+                  <Button 
+                    type='primary' 
+                    size="large" 
+                    icon={<Plus className="w-5 h-5" />} 
+                    block 
+                    className="sm:inline-block shadow-lg hover:shadow-xl transition-shadow"
+                    style={{
+                      background: 'linear-gradient(135deg, #DC143C 0%, #B71C1C 100%)',
+                      border: 'none',
+                      height: '48px',
+                      fontWeight: 600
+                    }}
+                  >
+                    <span className="hidden sm:inline">Nouvelle Expédition</span>
+                    <span className="sm:hidden">Nouveau</span>
                   </Button>
                 </Link>
               </div>
@@ -236,13 +251,25 @@ export default function MaterielsPage() {
             <div className="w-full">
               {materielsPdf.length === 0 ? (
                 <Card>
-                  <div className="text-center py-12">
-                    <Layers className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Aucun matériel trouvé</h3>
-                    <p className="text-gray-500 mb-6">Créez votre premier matériel pour commencer</p>
+                  <div className="text-center py-16">
+                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Layers className="w-12 h-12 text-gray-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Aucune expédition</h3>
+                    <p className="text-gray-600 mb-8 max-w-md mx-auto">Commencez par créer votre première expédition de matériels électoraux</p>
                     <Link href="/materiel/create">
-                      <Button type="primary" icon={<Plus className="w-4 h-4" />}>
-                        Créer un matériel
+                      <Button 
+                        type="primary" 
+                        size="large"
+                        icon={<Plus className="w-5 h-5" />}
+                        style={{
+                          background: 'linear-gradient(135deg, #DC143C 0%, #B71C1C 100%)',
+                          border: 'none',
+                          height: '48px',
+                          fontWeight: 600
+                        }}
+                      >
+                        Créer une Expédition
                       </Button>
                     </Link>
                   </div>

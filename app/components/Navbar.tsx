@@ -44,33 +44,54 @@ const Navbar = () => {
                     left: 0,
                     right: 0,
                     zIndex: 1000,
-                    height: 64,
+                    height: 70,
                     display: 'flex',
                     alignItems: 'center',
-                    padding: '0 16px',
-                    background: '#ffffff',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                    borderBottom: '1px solid rgba(0,0,0,0.06)',
+                    padding: '0 24px',
+                    background: 'linear-gradient(135deg, #DC143C 0%, #B71C1C 100%)',
+                    boxShadow: '0 4px 12px rgba(220, 20, 60, 0.3)',
+                    borderBottom: 'none',
                     width: '100%'
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <Button
                         type="text"
-                        icon={<MenuIcon className="w-5 h-5" />}
+                        icon={<MenuIcon className="w-5 h-5 text-white" />}
                         onClick={() => setMobileMenuOpen(true)}
-                        className="md:hidden"
+                        className="md:hidden hover:bg-white/10"
                         aria-label="Menu"
+                        style={{ color: 'white' }}
                     />
-                    <Logo size={40} alt="Logo" />
-                    <div className="hidden sm:block">
-                        <div className="font-bold text-base md:text-lg">CE<span className="text-blue-600">NI</span></div>
-                        <div className="text-xs text-gray-500 hidden md:block">Gestion de suivi</div>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-white rounded-lg p-1.5 shadow-md">
+                            <Logo size={36} alt="Logo CENI" />
+                        </div>
+                        <div className="hidden sm:block">
+                            <div className="font-bold text-lg md:text-xl text-white">
+                                CENI <span className="text-yellow-300">Madagascar</span>
+                            </div>
+                            <div className="text-xs text-white/90 hidden md:block font-medium">
+                                Gestion des Matériels Électoraux
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <UserButton />
+                    <div className="hidden md:flex items-center gap-3 text-white/90 text-sm">
+                        <div className="text-right">
+                            <div className="font-semibold">{user?.fullName || 'Utilisateur'}</div>
+                            <div className="text-xs text-white/70">{user?.primaryEmailAddress?.emailAddress}</div>
+                        </div>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-1">
+                        <UserButton appearance={{
+                            elements: {
+                                avatarBox: "w-9 h-9"
+                            }
+                        }} />
+                    </div>
                 </div>
             </Header>
 

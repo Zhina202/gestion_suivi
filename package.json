@@ -9,7 +9,12 @@
     "lint": "eslint",
     "prisma:generate": "npx prisma generate",
     "prisma:push": "prisma db push",
-    "prisma:studio": "npx prisma studio"
+    "prisma:studio": "npx prisma studio",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.7",
