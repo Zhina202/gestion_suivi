@@ -20,7 +20,7 @@ model User {
   phone         String?
   fonction      String?      // Fonction dans la CENI
   createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  updatedAt     DateTime     @default(now()) @updatedAt
   
   // Relations
   expeditions   Expedition[] @relation("UserExpeditions")
@@ -170,7 +170,7 @@ enum ExpeditionStatus {
 // Matériels individuels dans une expédition
 model Materiel {
   id              String      @id @default(uuid())
-  designation     String      // Désignation du matériel
+  designation     String      @default("Matériel non désigné") // Désignation du matériel
   typeMaterielId  String?     // Référence au type de matériel
   categorie       String?     // Catégorie (pour compatibilité)
   description     String?     // Description détaillée
@@ -189,7 +189,7 @@ model Materiel {
   expedition     Expedition?   @relation("ExpeditionMateriels", fields: [expeditionId], references: [id], onDelete: Cascade)
   
   createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  updatedAt       DateTime    @default(now()) @updatedAt
 }
 
 enum MaterielStatut {
