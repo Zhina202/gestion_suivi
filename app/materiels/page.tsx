@@ -30,22 +30,6 @@ const getStatusBadge = (status: number) => {
   }
 };
 
-// Fonction pour obtenir une couleur basée sur le nom de la catégorie
-const getCategoryColor = (categorie: string): string => {
-  const colors = [
-    'blue', 'green', 'orange', 'red', 'purple', 'cyan', 'magenta', 'gold', 
-    'lime', 'geekblue', 'volcano', 'processing'
-  ];
-  
-  // Utiliser le hash du nom pour obtenir une couleur cohérente
-  let hash = 0;
-  for (let i = 0; i < categorie.length; i++) {
-    hash = categorie.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash) % colors.length;
-  return colors[index];
-};
-
 const getDescriptions = (materielPdf: MaterielPdf) => {
   const materiels = materielPdf.Materiel || materielPdf.materiels || [];
   const descriptions = materiels
@@ -150,7 +134,6 @@ export default function MaterielsPage() {
   const [materielsPdf, setMaterielPdf] = useState<MaterielPdf[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<number | undefined>(undefined);
-  const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
 
   const fetchMaterielPdf = async () => {
     try {
@@ -169,20 +152,6 @@ export default function MaterielsPage() {
     setisNameValide(materielPdfName.length <= 50);
   }, [materielPdfName]);
 
-  // Obtenir toutes les catégories uniques pour le filtre
-  const getAllCategories = () => {
-    const allCategories = new Set<string>();
-    materielsPdf.forEach((materielPdf: MaterielPdf) => {
-      const materiels = materielPdf.Materiel || materielPdf.materiels || [];
-      materiels.forEach((m: import("@prisma/client").Materiel) => {
-        if (m.categorie && m.categorie.trim() !== '') {
-          allCategories.add(m.categorie);
-        }
-      });
-    });
-    return Array.from(allCategories).sort();
-  };
-
   // Filtrer les matériels
   const filteredMateriels = materielsPdf.filter((materielPdf: MaterielPdf) => {
     // Filtre par texte de recherche (nom, ID)
@@ -198,13 +167,6 @@ export default function MaterielsPage() {
     // Filtre par statut
     if (statusFilter !== undefined && materielPdf.status !== statusFilter) {
       return false;
-    }
-
-    // Filtre par catégorie
-    if (categoryFilter) {
-      const materiels = materielPdf.Materiel || materielPdf.materiels || [];
-      const hasCategory = materiels.some((m: import("@prisma/client").Materiel) => m.categorie === categoryFilter);
-      if (!hasCategory) return false;
     }
 
     return true;
@@ -293,22 +255,8 @@ export default function MaterielsPage() {
                           ]}
                         />
                       </Col>
-                      <Col xs={24} sm={24} md={8}>
-                        <Select
-                          placeholder="Filtrer par catégorie"
-                          value={categoryFilter}
-                          onChange={(value: string | undefined) => setCategoryFilter(value)}
-                          allowClear
-                          size="large"
-                          style={{ width: '100%' }}
-                          options={getAllCategories().map(cat => ({
-                            value: cat,
-                            label: <Badge color={getCategoryColor(cat)}>{cat}</Badge>
-                          }))}
-                        />
-                      </Col>
                     </Row>
-                    {(searchText || statusFilter !== undefined || categoryFilter) && (
+                    {(searchText || statusFilter !== undefined) && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Filter className="w-4 h-4" />
                         <span>
@@ -321,7 +269,6 @@ export default function MaterielsPage() {
                           onClick={() => {
                             setSearchText("");
                             setStatusFilter(undefined);
-                            setCategoryFilter(undefined);
                           }}
                         >
                           Réinitialiser
