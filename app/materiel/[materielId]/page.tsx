@@ -163,17 +163,23 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
             <Card>
               <Descriptions title="Informations générales" column={1} bordered size="small">
-                <Descriptions.Item label="Nom">
-                  {materielPdf.design || "—"}
+                <Descriptions.Item label="Désignation">
+                  {materielPdf.designation || materielPdf.design || "—"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Statut">
                   {getStatusBadge(materielPdf.status)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Date de départ">
-                  {formatDate(materielPdf.date_depart)}
+                  {formatDate(materielPdf.dateDepart || materielPdf.date_depart)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Date d'arrivée">
-                  {formatDate(materielPdf.date_arrive)}
+                  {formatDate(materielPdf.dateArrive || materielPdf.date_arrive)}
+                </Descriptions.Item>
+                <Descriptions.Item label="Lieu de départ">
+                  {materielPdf.lieuDepart || materielPdf.lieu_depart || "—"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Lieu d'arrivée">
+                  {materielPdf.lieuArrive || materielPdf.lieu_arrive || "—"}
                 </Descriptions.Item>
               </Descriptions>
             </Card>
@@ -181,11 +187,11 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
             <Card>
               <Descriptions title="Émetteur" column={1} bordered size="small">
                 <Descriptions.Item label="Nom">
-                  {materielPdf.nom_emetteur || "—"}
+                  {materielPdf.nomEmetteur || materielPdf.nom_emetteur || "—"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Adresse">
                   <div className="max-w-xs whitespace-pre-wrap text-sm">
-                    {materielPdf.adresse_emetteur || "—"}
+                    {materielPdf.adresseEmetteur || materielPdf.adresse_emetteur || "—"}
                   </div>
                 </Descriptions.Item>
               </Descriptions>
@@ -194,11 +200,11 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
             <Card>
               <Descriptions title="Récepteur" column={1} bordered size="small">
                 <Descriptions.Item label="Nom">
-                  {materielPdf.nom_recepteur || "—"}
+                  {materielPdf.nomRecepteur || materielPdf.nom_recepteur || "—"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Adresse">
                   <div className="max-w-xs whitespace-pre-wrap text-sm">
-                    {materielPdf.adresse_recepteur || "—"}
+                    {materielPdf.adresseRecepteur || materielPdf.adresse_recepteur || "—"}
                   </div>
                 </Descriptions.Item>
               </Descriptions>
@@ -224,7 +230,7 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
                     {materielPdf.materiels.map((materiel: import("@prisma/client").Materiel, index: number) => (
                       <tr key={materiel.id} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="p-2 md:p-3 text-sm">{index + 1}</td>
-                        <td className="p-2 md:p-3 text-sm">{materiel.design || "—"}</td>
+                        <td className="p-2 md:p-3 text-sm">{materiel.designation || materiel.design || "—"}</td>
                         <td className="p-2 md:p-3 text-sm">
                           {materiel.categorie ? (
                             <Badge color="blue">{materiel.categorie}</Badge>
@@ -233,7 +239,7 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
                           )}
                         </td>
                         <td className="p-2 md:p-3 text-sm hidden md:table-cell">{materiel.description || "—"}</td>
-                        <td className="p-2 md:p-3 text-sm font-semibold">{materiel.quantity}</td>
+                        <td className="p-2 md:p-3 text-sm font-semibold">{materiel.quantite || materiel.quantity || 0}</td>
                       </tr>
                     ))}
                   </tbody>

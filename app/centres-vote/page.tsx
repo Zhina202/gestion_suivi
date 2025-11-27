@@ -10,16 +10,20 @@ import {
   updateCentreVote,
   deleteCentreVote,
   getAllCommunes,
+  getAllDistricts,
+  getCommunesByDistrict,
 } from "../actions";
-import { CentreVote, Commune } from "@/type";
+import { CentreVote, Commune, District } from "@/type";
 
 export default function CentresVotePage() {
   const [centresVote, setCentresVote] = useState<CentreVote[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCentreVote, setEditingCentreVote] = useState<CentreVote | null>(null);
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string | undefined>();
   const [form] = Form.useForm();
 
   const fetchCentresVote = async () => {
@@ -37,25 +41,45 @@ export default function CentresVotePage() {
 
   useEffect(() => {
     fetchCentresVote();
-    const fetchCommunes = async () => {
-      const data = await getAllCommunes();
-      setCommunes(data as Commune[]);
+    const fetchDistricts = async () => {
+      const data = await getAllDistricts();
+      setDistricts(data as District[]);
     };
-    fetchCommunes();
+    fetchDistricts();
   }, []);
+
+  const handleDistrictChange = async (districtId: string) => {
+    setSelectedDistrictId(districtId);
+    setCommunes([]);
+    form.setFieldsValue({ communeId: undefined });
+    
+    if (districtId) {
+      const data = await getCommunesByDistrict(districtId);
+      setCommunes(data as Commune[]);
+    }
+  };
 
   const handleCreate = () => {
     setEditingCentreVote(null);
+    setSelectedDistrictId(undefined);
+    setCommunes([]);
     form.resetFields();
     setIsModalOpen(true);
   };
 
-  const handleEdit = (centreVote: CentreVote) => {
+  const handleEdit = async (centreVote: CentreVote) => {
     setEditingCentreVote(centreVote);
+    const districtId = centreVote.commune?.districtId;
+    if (districtId) {
+      setSelectedDistrictId(districtId);
+      const data = await getCommunesByDistrict(districtId);
+      setCommunes(data as Commune[]);
+    }
     form.setFieldsValue({
       code: centreVote.code,
       nom: centreVote.nom,
       communeId: centreVote.communeId,
+      districtId: districtId,
       adresse: centreVote.adresse || "",
       capacite: centreVote.capacite || undefined,
     });
@@ -296,17 +320,40 @@ export default function CentresVotePage() {
             <Input placeholder="Nom du centre de vote" />
           </Form.Item>
           <Form.Item
+            name="districtId"
+            label="District"
+            rules={[{ required: true, message: "Le district est requis" }]}
+          >
+            <Select 
+              placeholder="Sélectionner un district" 
+              showSearch
+              onChange={handleDistrictChange}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={districts.map((district) => ({
+                value: district.id,
+                label: `${district.nom} (${district.region?.nom})`
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
             name="communeId"
             label="Commune"
             rules={[{ required: true, message: "La commune est requise" }]}
           >
-            <Select placeholder="Sélectionner une commune" showSearch>
-              {communes.map((commune) => (
-                <Select.Option key={commune.id} value={commune.id}>
-                  {commune.nom} ({commune.district?.nom})
-                </Select.Option>
-              ))}
-            </Select>
+            <Select 
+              placeholder="Sélectionner une commune" 
+              showSearch
+              disabled={!selectedDistrictId}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={communes.map((commune) => ({
+                value: commune.id,
+                label: commune.nom
+              }))}
+            />
           </Form.Item>
           <Form.Item
             name="adresse"

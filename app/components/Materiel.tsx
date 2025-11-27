@@ -12,11 +12,13 @@ interface Props {
 const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
 
     const handleAddLine =() => {
-        const newLine: MaterielType = {
+        const newLine: any = {
             id : `${Date.now()}`,
+            designation:"",
             design:"",
             categorie:"",
             description:"",
+            quantite:1,
             quantity:1,
             userId: null,
             materielPdfId:materielPdf.id
@@ -34,7 +36,8 @@ const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
 
     const handleDesignChange = (index : number , value:string) => {
         const updatedMateriels = [...(materielPdf.materiels || [])]
-        updatedMateriels[index].design = value 
+        updatedMateriels[index].designation = value
+        updatedMateriels[index].design = value
         setMaterielPdf({...materielPdf , materiels : updatedMateriels, Materiel: updatedMateriels})
     }
 
@@ -52,7 +55,9 @@ const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
 
     const handleQuantityChange = (index : number , value:string) => {
         const updatedMateriels = [...(materielPdf.materiels || [])]
-        updatedMateriels[index].quantity = value === ""? 0 : parseInt(value)
+        const qty = value === ""? 0 : parseInt(value)
+        updatedMateriels[index].quantite = qty
+        updatedMateriels[index].quantity = qty
         setMaterielPdf({...materielPdf , materiels : updatedMateriels, Materiel: updatedMateriels})
     }
 
@@ -94,7 +99,7 @@ const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
                         <tr key={materiel.id} className='border-b border-gray-100 hover:bg-gray-50 transition-colors'>
                             <td className='p-3'>
                                 <Input
-                                    value={materiel.design}
+                                    value={materiel.designation || materiel.design || ''}
                                     onChange={(e) => handleDesignChange(index, e.target.value)}
                                     placeholder='Design du matériel'
                                     aria-label={`Design du matériel ${index + 1}`}
@@ -126,7 +131,7 @@ const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
                             </td>
                             <td className='p-3'>
                                 <InputNumber
-                                    value={materiel.quantity}
+                                    value={materiel.quantite || materiel.quantity || 0}
                                     min={0}
                                     onChange={(val) => handleQuantityChange(index, String(val || 0))}
                                     style={{ width: '100%' }}

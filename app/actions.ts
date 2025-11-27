@@ -65,11 +65,26 @@ const generateExpeditionNumber = async (): Promise<string> => {
 };
 
 /**
- * Crée une nouvelle expédition vide
+ * Crée une nouvelle expédition vide ou avec des données initiales
  */
 export async function createEmptyExpedition(
   email: string, 
-  designation: string
+  designation: string,
+  initialData?: {
+    lieuDepart?: string;
+    lieuArrive?: string;
+    dateDepart?: string | Date;
+    dateArrive?: string | Date;
+    nomEmetteur?: string;
+    adresseEmetteur?: string;
+    nomRecepteur?: string;
+    adresseRecepteur?: string;
+    notes?: string;
+    regionId?: string;
+    districtId?: string;
+    communeId?: string;
+    centreVoteId?: string;
+  }
 ): Promise<Expedition> {
   try {
     const user = await prisma.user.findUnique({
@@ -82,12 +97,31 @@ export async function createEmptyExpedition(
 
     const numero = await generateExpeditionNumber();
 
+    // Convertir les dates string en Date si nécessaire
+    const dateDepart = initialData?.dateDepart 
+      ? (typeof initialData.dateDepart === 'string' ? new Date(initialData.dateDepart) : initialData.dateDepart)
+      : null;
+    const dateArrive = initialData?.dateArrive 
+      ? (typeof initialData.dateArrive === 'string' ? new Date(initialData.dateArrive) : initialData.dateArrive)
+      : null;
+
     const expedition = await prisma.expedition.create({
       data: {
         numero,
         designation,
-        lieuDepart: "",
-        lieuArrive: "",
+        lieuDepart: initialData?.lieuDepart || "",
+        lieuArrive: initialData?.lieuArrive || "",
+        dateDepart: dateDepart,
+        dateArrive: dateArrive,
+        nomEmetteur: initialData?.nomEmetteur || null,
+        adresseEmetteur: initialData?.adresseEmetteur || null,
+        nomRecepteur: initialData?.nomRecepteur || null,
+        adresseRecepteur: initialData?.adresseRecepteur || null,
+        notes: initialData?.notes || null,
+        regionId: initialData?.regionId || null,
+        districtId: initialData?.districtId || null,
+        communeId: initialData?.communeId || null,
+        centreVoteId: initialData?.centreVoteId || null,
         status: ExpeditionStatus.BROUILLON,
         userId: user.id
       },
@@ -439,8 +473,26 @@ export async function deleteExpedition(expeditionId: string): Promise<void> {
  * Ces fonctions seront supprimées après migration complète
  */
 
-export async function createEmptyMaterielPdf(email: string, design: string) {
-  return createEmptyExpedition(email, design);
+export async function createEmptyMaterielPdf(
+  email: string, 
+  design: string, 
+  initialData?: {
+    lieuDepart?: string;
+    lieuArrive?: string;
+    dateDepart?: string | Date;
+    dateArrive?: string | Date;
+    nomEmetteur?: string;
+    adresseEmetteur?: string;
+    nomRecepteur?: string;
+    adresseRecepteur?: string;
+    notes?: string;
+    regionId?: string;
+    districtId?: string;
+    communeId?: string;
+    centreVoteId?: string;
+  }
+) {
+  return createEmptyExpedition(email, design, initialData);
 }
 
 export async function getMaterielPdfByEmail(email: string) {
@@ -448,16 +500,46 @@ export async function getMaterielPdfByEmail(email: string) {
   // Convertir Expedition en MaterielPdf pour compatibilité
   return expeditions.map(exp => ({
     ...exp,
-    materiels: exp.materiels,
-    Materiel: exp.materiels
+    // Compatibilité avec les anciens noms de champs
+    design: exp.designation,
+    date_depart: exp.dateDepart ? new Date(exp.dateDepart).toISOString().split('T')[0] : null,
+    date_arrive: exp.dateArrive ? new Date(exp.dateArrive).toISOString().split('T')[0] : null,
+    nom_emetteur: exp.nomEmetteur,
+    adresse_emetteur: exp.adresseEmetteur,
+    nom_recepteur: exp.nomRecepteur,
+    adresse_recepteur: exp.adresseRecepteur,
+    lieu_depart: exp.lieuDepart,
+    lieu_arrive: exp.lieuArrive,
+    materiels: exp.materiels?.map((m: any) => ({
+      ...m,
+      design: m.designation,
+      quantity: m.quantite
+    })),
+    Materiel: exp.materiels?.map((m: any) => ({
+      ...m,
+      design: m.designation,
+      quantity: m.quantite
+    }))
   }));
 }
 
 export async function getMaterielPdfById(id: string) {
   const expedition = await getExpeditionById(id);
   if (!expedition) return null;
+  // Mapper les nouveaux champs vers les anciens pour compatibilité
   return {
     ...expedition,
+    // Compatibilité avec les anciens noms de champs
+    design: expedition.designation,
+    designation: expedition.designation,
+    date_depart: expedition.dateDepart ? new Date(expedition.dateDepart).toISOString().split('T')[0] : null,
+    date_arrive: expedition.dateArrive ? new Date(expedition.dateArrive).toISOString().split('T')[0] : null,
+    nom_emetteur: expedition.nomEmetteur,
+    adresse_emetteur: expedition.adresseEmetteur,
+    nom_recepteur: expedition.nomRecepteur,
+    adresse_recepteur: expedition.adresseRecepteur,
+    lieu_depart: expedition.lieuDepart,
+    lieu_arrive: expedition.lieuArrive,
     materiels: expedition.materiels,
     Materiel: expedition.materiels
   };

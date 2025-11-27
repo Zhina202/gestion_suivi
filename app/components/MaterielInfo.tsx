@@ -20,18 +20,24 @@ const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
                     <h2 className='text-lg font-bold mb-4 pb-2 border-b'>Émetteur</h2>
                     <Form.Item label={<span className="font-semibold">Nom de l'émetteur</span>}>
                         <Input
-                            value={materielPdf?.nom_emetteur || ''}
+                            value={materielPdf?.nomEmetteur || materielPdf?.nom_emetteur || ''}
                             placeholder="Nom de l'émetteur"
-                            onChange={(e) => handleInputChange(e as any, 'nom_emetteur')}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setMaterielPdf({...materielPdf, nomEmetteur: value, nom_emetteur: value})
+                            }}
                         />
                     </Form.Item>
 
                     <Form.Item label={<span className="font-semibold">Adresse de l'émetteur</span>}>
                         <Input.TextArea
-                            value={materielPdf?.adresse_emetteur || ''}
+                            value={materielPdf?.adresseEmetteur || materielPdf?.adresse_emetteur || ''}
                             placeholder="Adresse complète de l'émetteur"
                             rows={4}
-                            onChange={(e) => handleInputChange(e as any, 'adresse_emetteur')}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setMaterielPdf({...materielPdf, adresseEmetteur: value, adresse_emetteur: value})
+                            }}
                         />
                     </Form.Item>
                 </div>
@@ -40,18 +46,24 @@ const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
                     <h2 className='text-lg font-bold mb-4 pb-2 border-b'>Récepteur</h2>
                     <Form.Item label={<span className="font-semibold">Nom du récepteur</span>}>
                         <Input
-                            value={materielPdf?.nom_recepteur || ''}
+                            value={materielPdf?.nomRecepteur || materielPdf?.nom_recepteur || ''}
                             placeholder="Nom du récepteur"
-                            onChange={(e) => handleInputChange(e as any, 'nom_recepteur')}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setMaterielPdf({...materielPdf, nomRecepteur: value, nom_recepteur: value})
+                            }}
                         />
                     </Form.Item>
 
                     <Form.Item label={<span className="font-semibold">Adresse du récepteur</span>}>
                         <Input.TextArea
-                            value={materielPdf?.adresse_recepteur || ''}
+                            value={materielPdf?.adresseRecepteur || materielPdf?.adresse_recepteur || ''}
                             placeholder="Adresse complète du récepteur"
                             rows={4}
-                            onChange={(e) => handleInputChange(e as any, 'adresse_recepteur')}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setMaterielPdf({...materielPdf, adresseRecepteur: value, adresse_recepteur: value})
+                            }}
                         />
                     </Form.Item>
                 </div>
@@ -61,16 +73,40 @@ const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
                     <Form.Item label={<span className="font-semibold">Date de départ</span>}>
                         <Input
                             type="date"
-                            value={materielPdf?.date_depart || ''}
-                            onChange={(e) => handleInputChange(e as any, 'date_depart')}
+                            value={
+                                materielPdf?.dateDepart 
+                                    ? new Date(materielPdf.dateDepart).toISOString().split('T')[0]
+                                    : materielPdf?.date_depart || ''
+                            }
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                const dateValue = value ? new Date(value) : null;
+                                setMaterielPdf({
+                                    ...materielPdf, 
+                                    dateDepart: dateValue as any,
+                                    date_depart: value
+                                })
+                            }}
                         />
                     </Form.Item>
 
                     <Form.Item label={<span className="font-semibold">Date d'arrivée</span>}>
                         <Input
                             type="date"
-                            value={materielPdf?.date_arrive || ''}
-                            onChange={(e) => handleInputChange(e as any, 'date_arrive')}
+                            value={
+                                materielPdf?.dateArrive 
+                                    ? new Date(materielPdf.dateArrive).toISOString().split('T')[0]
+                                    : materielPdf?.date_arrive || ''
+                            }
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                const dateValue = value ? new Date(value) : null;
+                                setMaterielPdf({
+                                    ...materielPdf, 
+                                    dateArrive: dateValue as any,
+                                    date_arrive: value
+                                })
+                            }}
                         />
                     </Form.Item>
                 </div>

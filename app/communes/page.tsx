@@ -10,16 +10,20 @@ import {
   updateCommune,
   deleteCommune,
   getAllDistricts,
+  getAllRegions,
+  getDistrictsByRegion,
 } from "../actions";
-import { Commune, District } from "@/type";
+import { Commune, District, Region } from "@/type";
 
 export default function CommunesPage() {
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCommune, setEditingCommune] = useState<Commune | null>(null);
+  const [selectedRegionId, setSelectedRegionId] = useState<string | undefined>();
   const [form] = Form.useForm();
 
   const fetchCommunes = async () => {
@@ -37,25 +41,45 @@ export default function CommunesPage() {
 
   useEffect(() => {
     fetchCommunes();
-    const fetchDistricts = async () => {
-      const data = await getAllDistricts();
-      setDistricts(data as District[]);
+    const fetchRegions = async () => {
+      const data = await getAllRegions();
+      setRegions(data as Region[]);
     };
-    fetchDistricts();
+    fetchRegions();
   }, []);
+
+  const handleRegionChange = async (regionId: string) => {
+    setSelectedRegionId(regionId);
+    setDistricts([]);
+    form.setFieldsValue({ districtId: undefined });
+    
+    if (regionId) {
+      const data = await getDistrictsByRegion(regionId);
+      setDistricts(data as District[]);
+    }
+  };
 
   const handleCreate = () => {
     setEditingCommune(null);
+    setSelectedRegionId(undefined);
+    setDistricts([]);
     form.resetFields();
     setIsModalOpen(true);
   };
 
-  const handleEdit = (commune: Commune) => {
+  const handleEdit = async (commune: Commune) => {
     setEditingCommune(commune);
+    const regionId = commune.district?.regionId;
+    if (regionId) {
+      setSelectedRegionId(regionId);
+      const data = await getDistrictsByRegion(regionId);
+      setDistricts(data as District[]);
+    }
     form.setFieldsValue({
       code: commune.code,
       nom: commune.nom,
       districtId: commune.districtId,
+      regionId: regionId,
     });
     setIsModalOpen(true);
   };
@@ -278,17 +302,40 @@ export default function CommunesPage() {
             <Input placeholder="Nom de la commune" />
           </Form.Item>
           <Form.Item
+            name="regionId"
+            label="Région"
+            rules={[{ required: true, message: "La région est requise" }]}
+          >
+            <Select 
+              placeholder="Sélectionner une région" 
+              showSearch
+              onChange={handleRegionChange}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={regions.map((region) => ({
+                value: region.id,
+                label: region.nom
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
             name="districtId"
             label="District"
             rules={[{ required: true, message: "Le district est requis" }]}
           >
-            <Select placeholder="Sélectionner un district" showSearch>
-              {districts.map((district) => (
-                <Select.Option key={district.id} value={district.id}>
-                  {district.nom} ({district.region?.nom})
-                </Select.Option>
-              ))}
-            </Select>
+            <Select 
+              placeholder="Sélectionner un district" 
+              showSearch
+              disabled={!selectedRegionId}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={districts.map((district) => ({
+                value: district.id,
+                label: district.nom
+              }))}
+            />
           </Form.Item>
         </Form>
       </Modal>
