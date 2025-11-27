@@ -11,22 +11,22 @@ import { MaterielPdf } from "@/type";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { Table, Space, Button, Modal, Badge, Tooltip, Card, Input, Select, Row, Col } from 'antd';
+import { Table, Space, Button, Modal, Badge, Tag, Tooltip, Card, Input, Select, Row, Col } from 'antd';
 
 const getStatusBadge = (status: number) => {
   switch (status) {
     case 1:
-      return <Badge color="default">Brouillon</Badge>;
+      return <Tag color="default">Brouillon</Tag>;
     case 2:
-      return <Badge color="orange">En transit</Badge>;
+      return <Tag color="orange">En transit</Tag>;
     case 3:
-      return <Badge color="green">Reçu</Badge>;
+      return <Tag color="green">Reçu</Tag>;
     case 4:
-      return <Badge color="blue">Endommagé</Badge>;
+      return <Tag color="volcano">Endommagé</Tag>;
     case 5:
-      return <Badge color="red">Perdu</Badge>;
+      return <Tag color="red">Perdu</Tag>;
     default:
-      return <Badge>Indéfini</Badge>;
+      return <Tag>Indéfini</Tag>;
   }
 };
 
@@ -46,20 +46,32 @@ const getCategoryColor = (categorie: string): string => {
   return colors[index];
 };
 
-const getCategoryBadges = (materielPdf: MaterielPdf) => {
+const getDescriptions = (materielPdf: MaterielPdf) => {
   const materiels = materielPdf.Materiel || materielPdf.materiels || [];
-  const categories = [...new Set(materiels.map(m => m.categorie).filter(c => c && c.trim() !== ''))];
+  const descriptions = materiels
+    .map(m => m.description)
+    .filter(d => d && d.trim() !== '');
   
-  if (categories.length === 0) {
-    return <span className="text-gray-400 text-sm">Aucune catégorie</span>;
+  if (descriptions.length === 0) {
+    return <span className="text-gray-400 text-sm">—</span>;
   }
   
+  // Afficher toutes les descriptions uniques, séparées par des virgules
+  const uniqueDescriptions = [...new Set(descriptions)];
+  const displayText = uniqueDescriptions.join(', ');
+  
+  // Limiter la longueur pour l'affichage dans le tableau
+  const maxLength = 100;
+  const truncatedText = displayText.length > maxLength 
+    ? displayText.substring(0, maxLength) + '...' 
+    : displayText;
+  
   return (
-    <Space size="small" wrap>
-      {categories.map((categorie, index) => (
-        <Badge key={index} color={getCategoryColor(categorie)}>{categorie}</Badge>
-      ))}
-    </Space>
+    <div className="max-w-xs">
+      <span className="text-sm text-gray-700" title={displayText}>
+        {truncatedText}
+      </span>
+    </div>
   );
 };
 
@@ -87,7 +99,7 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
   const columns: any = [
     { title: 'ID', dataIndex: 'id', key: 'id', render: (id: string) => `MATRI-${id}` },
     { title: 'Nom', dataIndex: 'design', key: 'design' },
-    { title: 'Types', key: 'types', render: (_: any, record: MaterielPdf) => getCategoryBadges(record) },
+    { title: 'Description', key: 'description', render: (_: any, record: MaterielPdf) => getDescriptions(record) },
     { title: 'Statut', dataIndex: 'status', key: 'status', render: (s: number) => getStatusBadge(s) },
     { title: 'Date départ', dataIndex: 'date_depart', key: 'date_depart' },
     { title: 'Actions', key: 'actions', render: (_: any, record: any) => (
