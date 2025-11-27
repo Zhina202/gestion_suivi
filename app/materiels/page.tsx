@@ -11,7 +11,7 @@ import { MaterielPdf } from "@/type";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { Table, Space, Button, Modal, Badge, Tag, Tooltip, Card, Input, Select, Row, Col } from 'antd';
+import { Table, Space, Button, Modal, Badge, Tag, Tooltip, Card, Input, Select, Row, Col, message } from 'antd';
 
 const getStatusBadge = (status: number) => {
   switch (status) {
@@ -65,16 +65,40 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
   const handleDelete = async (id: string) => {
     Modal.confirm({
       title: 'Confirmer la suppression',
-      content: 'Supprimer ce matériel ? Cette action est irréversible.',
+      content: 'Êtes-vous sûr de vouloir supprimer ce matériel ? Cette action est irréversible.',
+      okText: 'Supprimer',
+      okType: 'danger',
+      cancelText: 'Annuler',
       onOk: async () => {
         try {
-          const res = await fetch(`/api/materiel/${id}`, { method: 'DELETE' });
+          const res = await fetch(`/api/materiel/${id}`, { 
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (!res.ok) {
+            throw new Error(`Erreur HTTP: ${res.status}`);
+          }
+          
           const json = await res.json();
-          if (json.ok) onDeleted();
-          else Modal.error({ title: 'Erreur', content: 'Impossible de supprimer' });
+          
+          if (json.ok) {
+            message.success('Matériel supprimé avec succès');
+            onDeleted();
+          } else {
+            Modal.error({ 
+              title: 'Erreur', 
+              content: json.error || 'Impossible de supprimer le matériel' 
+            });
+          }
         } catch (err) {
-          console.error(err);
-          Modal.error({ title: 'Erreur', content: 'Erreur lors de la suppression' });
+          console.error('Erreur lors de la suppression:', err);
+          Modal.error({ 
+            title: 'Erreur', 
+            content: err instanceof Error ? err.message : 'Erreur lors de la suppression' 
+          });
         }
       }
     })

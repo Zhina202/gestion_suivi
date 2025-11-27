@@ -1,18 +1,23 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { deleteMaterielPdf } from '@/app/actions'
 
-// Use a lenient context typing to satisfy Next's generated validator types
-export async function DELETE(req: NextRequest, context: any) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = context?.params?.id
+    const { id } = await params
     if (!id) {
       return NextResponse.json({ ok: false, error: 'Missing id' }, { status: 400 })
     }
     await deleteMaterielPdf(id)
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ ok: false, error: 'Erreur lors de la suppression' }, { status: 500 })
+    console.error('Erreur lors de la suppression:', error)
+    return NextResponse.json({ 
+      ok: false, 
+      error: error instanceof Error ? error.message : 'Erreur lors de la suppression' 
+    }, { status: 500 })
   }
 }
 
