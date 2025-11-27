@@ -82,13 +82,14 @@ export default function DistrictsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer ce district ?",
       okText: "Supprimer",
       okType: "danger",
       cancelText: "Annuler",
+      width: 500,
       onOk: async () => {
         try {
           await deleteDistrict(id);
@@ -168,7 +169,11 @@ export default function DistrictsPage() {
             type="text"
             danger
             icon={<Trash2 className="w-4 h-4" />}
-            onClick={() => handleDelete(record.id)}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDelete(record.id);
+            }}
           />
         </Space>
       ),

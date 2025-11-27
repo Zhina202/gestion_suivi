@@ -73,13 +73,14 @@ const getDescriptions = (materielPdf: MaterielPdf) => {
 const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; filteredData: MaterielPdf[] }> = ({ data, onDeleted, filteredData }: { data: MaterielPdf[]; onDeleted: () => void; filteredData: MaterielPdf[] }) => {
   const router = useRouter();
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: 'Confirmer la suppression',
-      content: 'Êtes-vous sûr de vouloir supprimer ce matériel ? Cette action est irréversible.',
+      content: 'Êtes-vous sûr de vouloir supprimer cette expédition ? Cette action est irréversible.',
       okText: 'Supprimer',
       okType: 'danger',
       cancelText: 'Annuler',
+      width: 500,
       onOk: async () => {
         try {
           const res = await fetch(`/api/materiel/${id}`, { 
@@ -96,12 +97,12 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
           const json = await res.json();
           
           if (json.ok) {
-            message.success('Matériel supprimé avec succès');
+            message.success('Expédition supprimée avec succès');
             onDeleted();
           } else {
             Modal.error({ 
               title: 'Erreur', 
-              content: json.error || 'Impossible de supprimer le matériel' 
+              content: json.error || 'Impossible de supprimer l\'expédition' 
             });
           }
         } catch (err) {
@@ -112,7 +113,7 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
           });
         }
       }
-    })
+    });
   }
 
   const formatDate = (date: string | Date | null | undefined) => {
@@ -173,6 +174,7 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
             danger 
             icon={<Trash2 className="w-4 h-4" />}
             onClick={(e: React.MouseEvent<HTMLButtonElement>) => { 
+              e.preventDefault();
               e.stopPropagation(); 
               handleDelete(record.id); 
             }} 
@@ -187,7 +189,16 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
       <Table
         columns={columns}
         dataSource={filteredData.map(d => ({ ...d, key: d.id }))}
-        onRow={(record: any) => ({ onClick: () => router.push(`/materiel/${record.id}`) })}
+        onRow={(record: any) => ({ 
+          onClick: (e: React.MouseEvent) => {
+            // Ne pas naviguer si on clique sur un bouton ou un lien
+            const target = e.target as HTMLElement;
+            if (target.closest('button') || target.closest('a')) {
+              return;
+            }
+            router.push(`/materiel/${record.id}`);
+          }
+        })}
         scroll={{ x: 'max-content' }}
         pagination={{
           pageSize: 10,

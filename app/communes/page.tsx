@@ -87,11 +87,17 @@ export default function CommunesPage() {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      // Extraire regionId car il n'est pas dans le modèle Commune
+      const { regionId: _regionId, ...communeData } = values;
+      
+      // S'assurer que regionId n'est pas dans les données (double sécurité)
+      delete (communeData as any).regionId;
+      
       if (editingCommune) {
-        await updateCommune(editingCommune.id, values);
+        await updateCommune(editingCommune.id, communeData);
         message.success("Commune mise à jour avec succès");
       } else {
-        await createCommune(values);
+        await createCommune(communeData);
         message.success("Commune créée avec succès");
       }
       setIsModalOpen(false);
@@ -105,13 +111,14 @@ export default function CommunesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer cette commune ?",
       okText: "Supprimer",
       okType: "danger",
       cancelText: "Annuler",
+      width: 500,
       onOk: async () => {
         try {
           await deleteCommune(id);
@@ -192,7 +199,11 @@ export default function CommunesPage() {
             type="text"
             danger
             icon={<Trash2 className="w-4 h-4" />}
-            onClick={() => handleDelete(record.id)}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDelete(record.id);
+            }}
           />
         </Space>
       ),

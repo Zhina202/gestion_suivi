@@ -37,13 +37,14 @@ export default function RegionsPage() {
     fetchRegions();
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer cette région ?",
       okText: "Supprimer",
       okType: "danger",
       cancelText: "Annuler",
+      width: 500,
       onOk: async () => {
         try {
           await deleteRegion(id);
@@ -152,7 +153,11 @@ export default function RegionsPage() {
             type="text"
             danger
             icon={<Trash2 className="w-4 h-4" />}
-            onClick={() => handleDelete(record.id)}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDelete(record.id);
+            }}
           />
         </Space>
       ),

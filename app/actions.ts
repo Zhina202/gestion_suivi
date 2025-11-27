@@ -955,10 +955,22 @@ export async function createCommune(data: {
   code: string;
   nom: string;
   districtId: string;
+  regionId?: string; // Accepté mais ignoré (pour compatibilité avec le formulaire)
 }) {
   try {
+    // Construire l'objet de données valides explicitement (sans regionId)
+    const validData: {
+      code: string;
+      nom: string;
+      districtId: string;
+    } = {
+      code: data.code,
+      nom: data.nom,
+      districtId: data.districtId,
+    };
+    
     return await prisma.commune.create({
-      data,
+      data: validData,
       include: {
         district: true,
         centresVote: true
@@ -974,11 +986,23 @@ export async function updateCommune(id: string, data: {
   code?: string;
   nom?: string;
   districtId?: string;
+  regionId?: string; // Accepté mais ignoré (pour compatibilité avec le formulaire)
 }) {
   try {
+    // Construire l'objet de données valides explicitement (sans regionId)
+    const validData: {
+      code?: string;
+      nom?: string;
+      districtId?: string;
+    } = {};
+    
+    if (data.code !== undefined) validData.code = data.code;
+    if (data.nom !== undefined) validData.nom = data.nom;
+    if (data.districtId !== undefined) validData.districtId = data.districtId;
+    
     return await prisma.commune.update({
       where: { id },
-      data,
+      data: validData,
       include: {
         district: true,
         centresVote: true
@@ -1032,12 +1056,29 @@ export async function createCentreVote(data: {
   code: string;
   nom: string;
   communeId: string;
+  districtId?: string; // Accepté mais ignoré (pour compatibilité avec le formulaire)
   adresse?: string;
   capacite?: number;
 }) {
   try {
+    // Construire l'objet de données valides explicitement (sans districtId)
+    const validData: {
+      code: string;
+      nom: string;
+      communeId: string;
+      adresse?: string;
+      capacite?: number;
+    } = {
+      code: data.code,
+      nom: data.nom,
+      communeId: data.communeId,
+    };
+    
+    if (data.adresse !== undefined) validData.adresse = data.adresse;
+    if (data.capacite !== undefined) validData.capacite = data.capacite;
+    
     return await prisma.centreVote.create({
-      data,
+      data: validData,
       include: {
         commune: true
       }
@@ -1052,13 +1093,29 @@ export async function updateCentreVote(id: string, data: {
   code?: string;
   nom?: string;
   communeId?: string;
+  districtId?: string; // Accepté mais ignoré (pour compatibilité avec le formulaire)
   adresse?: string;
   capacite?: number;
 }) {
   try {
+    // Construire l'objet de données valides explicitement (sans districtId)
+    const validData: {
+      code?: string;
+      nom?: string;
+      communeId?: string;
+      adresse?: string;
+      capacite?: number;
+    } = {};
+    
+    if (data.code !== undefined) validData.code = data.code;
+    if (data.nom !== undefined) validData.nom = data.nom;
+    if (data.communeId !== undefined) validData.communeId = data.communeId;
+    if (data.adresse !== undefined) validData.adresse = data.adresse;
+    if (data.capacite !== undefined) validData.capacite = data.capacite;
+    
     return await prisma.centreVote.update({
       where: { id },
-      data,
+      data: validData,
       include: {
         commune: true
       }

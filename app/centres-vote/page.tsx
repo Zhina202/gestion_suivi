@@ -89,11 +89,17 @@ export default function CentresVotePage() {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      // Extraire districtId car il n'est pas dans le modèle CentreVote
+      const { districtId: _districtId, ...centreVoteData } = values;
+      
+      // S'assurer que districtId n'est pas dans les données (double sécurité)
+      delete (centreVoteData as any).districtId;
+      
       if (editingCentreVote) {
-        await updateCentreVote(editingCentreVote.id, values);
+        await updateCentreVote(editingCentreVote.id, centreVoteData);
         message.success("Centre de vote mis à jour avec succès");
       } else {
-        await createCentreVote(values);
+        await createCentreVote(centreVoteData);
         message.success("Centre de vote créé avec succès");
       }
       setIsModalOpen(false);
@@ -107,13 +113,14 @@ export default function CentresVotePage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer ce centre de vote ?",
       okText: "Supprimer",
       okType: "danger",
       cancelText: "Annuler",
+      width: 500,
       onOk: async () => {
         try {
           await deleteCentreVote(id);
@@ -210,7 +217,11 @@ export default function CentresVotePage() {
             type="text"
             danger
             icon={<Trash2 className="w-4 h-4" />}
-            onClick={() => handleDelete(record.id)}
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDelete(record.id);
+            }}
           />
         </Space>
       ),

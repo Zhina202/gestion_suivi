@@ -13,14 +13,20 @@ interface PdfProps {
     materielPdf : MaterielPdf
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const options: Intl.DateTimeFormatOptions = {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  };
-  return date.toLocaleDateString('fr-FR', options);
+function formatDate(dateString: string | Date | null | undefined): string {
+  if (!dateString) return "—";
+  try {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    if (isNaN(date.getTime())) return "—";
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    };
+    return date.toLocaleDateString('fr-FR', options);
+  } catch {
+    return "—";
+  }
 }
 
 
@@ -49,7 +55,7 @@ const Pdf: React.FC<PdfProps> = (
 
                 pdf.addImage(imgData , 'PNG' ,0,0 , pdfWidth, pdfHeight )
 
-                pdf.save(`materiel-${materielPdf.design}.pdf`) 
+                pdf.save(`materiel-${materielPdf.designation || materielPdf.design || materielPdf.id}.pdf`) 
                 confetti({
                         particleCount : 100,
                         spread : 70,
@@ -103,11 +109,11 @@ const Pdf: React.FC<PdfProps> = (
                             <div className='text-sm text-gray-600 space-y-1'>
                                 <p>
                                     <strong className='text-gray-800'>Date départ : </strong>
-                                    {formatDate(materielPdf.date_depart) || "—"}
+                                    {formatDate(materielPdf.dateDepart || materielPdf.date_depart) || "—"}
                                 </p>
                                 <p>
                                     <strong className='text-gray-800'>Date d'arrivée : </strong>
-                                    {formatDate(materielPdf.date_arrive) || "—"}
+                                    {formatDate(materielPdf.dateArrive || materielPdf.date_arrive) || "—"}
                                 </p>
                             </div>
                         </div>
@@ -117,13 +123,13 @@ const Pdf: React.FC<PdfProps> = (
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 mb-8'>
                         <div className='bg-gray-50 p-4 rounded-lg border border-gray-200'>
                             <div className='text-xs uppercase font-semibold text-gray-500 mb-3 tracking-wider'>Émetteur</div>
-                            <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nom_emetteur || "—"}</p>
-                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresse_emetteur || "—"}</p>
+                            <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nomEmetteur || materielPdf.nom_emetteur || "—"}</p>
+                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresseEmetteur || materielPdf.adresse_emetteur || "—"}</p>
                         </div>
                         <div className='bg-gray-50 p-4 rounded-lg border border-gray-200'>
                             <div className='text-xs uppercase font-semibold text-gray-500 mb-3 tracking-wider'>Récepteur</div>
-                            <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nom_recepteur || "—"}</p>
-                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresse_recepteur || "—"}</p>
+                            <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nomRecepteur || materielPdf.nom_recepteur || "—"}</p>
+                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresseRecepteur || materielPdf.adresse_recepteur || "—"}</p>
                         </div>
                     </div>
 
@@ -141,10 +147,10 @@ const Pdf: React.FC<PdfProps> = (
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {materielPdf.materiels.map((materiel: import("@prisma/client").Materiel, index: number) => (
+                                    {materielPdf.materiels.map((materiel: any, index: number) => (
                                         <tr key={index + 1} className='hover:bg-gray-50'>
                                             <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700 font-medium'>{index + 1}</td>
-                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800'>{materiel.design || "—"}</td>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800'>{materiel.designation || materiel.design || "—"}</td>
                                             <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700'>
                                                 {materiel.categorie && materiel.categorie.trim() !== '' ? (
                                                     <Badge color="blue">{materiel.categorie}</Badge>
@@ -153,7 +159,7 @@ const Pdf: React.FC<PdfProps> = (
                                                 )}
                                             </td>
                                             <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700'>{materiel.description || "—"}</td>
-                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800 font-semibold text-center'>{materiel.quantity}</td>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800 font-semibold text-center'>{materiel.quantite || materiel.quantity || 0}</td>
                                         </tr>
                                     ))}
                                 </tbody>
