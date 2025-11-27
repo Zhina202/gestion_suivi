@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, Modal, message, Input, Form, Select } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, Select } from "antd";
 import { Edit, Trash2, Plus, Search, Building2 } from "lucide-react";
 import {
   getAllDistricts,
@@ -12,6 +12,7 @@ import {
   getAllRegions,
 } from "../actions";
 import { District, Region } from "@/type";
+import { confirmDelete } from "../utils/confirmDelete";
 
 export default function DistrictsPage() {
   const [districts, setDistricts] = useState<District[]>([]);
@@ -83,21 +84,18 @@ export default function DistrictsPage() {
   };
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    confirmDelete({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer ce district ?",
-      okText: "Supprimer",
-      okType: "danger",
-      cancelText: "Annuler",
-      width: 500,
-      onOk: async () => {
-        try {
-          await deleteDistrict(id);
-          message.success("District supprimé avec succès");
-          fetchDistricts();
-        } catch (error) {
-          message.error("Erreur lors de la suppression");
-        }
+      onConfirm: async () => {
+        await deleteDistrict(id);
+      },
+      onSuccess: () => {
+        message.success("District supprimé avec succès");
+        fetchDistricts();
+      },
+      onError: () => {
+        message.error("Erreur lors de la suppression");
       },
     });
   };

@@ -11,7 +11,8 @@ import { MaterielPdf } from "@/type";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { Table, Space, Button, Modal, Badge, Tag, Tooltip, Card, Input, Select, Row, Col, message } from 'antd';
+import { confirmDelete } from "../utils/confirmDelete";
+import { Table, Space, Button, Badge, Tag, Tooltip, Card, Input, Select, Row, Col, message } from 'antd';
 
 const getStatusBadge = (status: string | number) => {
   // Gérer les anciens statuts numériques et les nouveaux enums
@@ -74,45 +75,34 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
   const router = useRouter();
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    confirmDelete({
       title: 'Confirmer la suppression',
       content: 'Êtes-vous sûr de vouloir supprimer cette expédition ? Cette action est irréversible.',
-      okText: 'Supprimer',
-      okType: 'danger',
-      cancelText: 'Annuler',
-      width: 500,
-      onOk: async () => {
-        try {
-          const res = await fetch(`/api/materiel/${id}`, { 
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-          
-          if (!res.ok) {
-            throw new Error(`Erreur HTTP: ${res.status}`);
+      onConfirm: async () => {
+        const res = await fetch(`/api/materiel/${id}`, { 
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
           }
-          
-          const json = await res.json();
-          
-          if (json.ok) {
-            message.success('Expédition supprimée avec succès');
-            onDeleted();
-          } else {
-            Modal.error({ 
-              title: 'Erreur', 
-              content: json.error || 'Impossible de supprimer l\'expédition' 
-            });
-          }
-        } catch (err) {
-          console.error('Erreur lors de la suppression:', err);
-          Modal.error({ 
-            title: 'Erreur', 
-            content: err instanceof Error ? err.message : 'Erreur lors de la suppression' 
-          });
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Erreur HTTP: ${res.status}`);
         }
-      }
+        
+        const json = await res.json();
+        
+        if (!json.ok) {
+          throw new Error(json.error || 'Impossible de supprimer l\'expédition');
+        }
+      },
+      onSuccess: () => {
+        message.success('Expédition supprimée avec succès');
+        onDeleted();
+      },
+      onError: (error) => {
+        message.error(error instanceof Error ? error.message : 'Erreur lors de la suppression');
+      },
     });
   }
 

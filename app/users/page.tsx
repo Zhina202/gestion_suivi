@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, Modal, message, Input, Form } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form } from "antd";
 import { Edit, Trash2, Plus, Search, User as UserIcon } from "lucide-react";
 import { getAllUsers, updateUser, deleteUser } from "../actions";
 import { User, UserRole } from "@/type";
 import Link from "next/link";
+import { confirmDelete } from "../utils/confirmDelete";
 
 const getRoleBadge = (role: UserRole) => {
   const roleMap: Record<UserRole, { color: string; label: string }> = {
@@ -74,21 +75,18 @@ export default function UsersPage() {
   };
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    confirmDelete({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer cet utilisateur ?",
-      okText: "Supprimer",
-      okType: "danger",
-      cancelText: "Annuler",
-      width: 500,
-      onOk: async () => {
-        try {
-          await deleteUser(id);
-          message.success("Utilisateur supprimé avec succès");
-          fetchUsers();
-        } catch (error) {
-          message.error("Erreur lors de la suppression");
-        }
+      onConfirm: async () => {
+        await deleteUser(id);
+      },
+      onSuccess: () => {
+        message.success("Utilisateur supprimé avec succès");
+        fetchUsers();
+      },
+      onError: () => {
+        message.error("Erreur lors de la suppression");
       },
     });
   };

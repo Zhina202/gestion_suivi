@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import Pdf from '@/app/components/Pdf'
 import Card from '@/app/components/Card'
 import { Select, Button, Space, message, Modal } from 'antd'
+import { confirmDelete } from '@/app/utils/confirmDelete'
 import Link from 'next/link'
 
 const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
@@ -121,24 +122,23 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
     })
   }
 
-  const handleDelete = async () => {
-    Modal.confirm({
+  const handleDelete = () => {
+    if (!materielPdf) return;
+    
+    confirmDelete({
       title: 'Confirmer la suppression',
-      content: 'Êtes-vous sûr de vouloir supprimer ce matériel ? Cette action est irréversible.',
-      okText: 'Supprimer',
-      okType: 'danger',
-      cancelText: 'Annuler',
-      onOk: async () => {
-        try {
-          await deleteMaterielPdf(materielPdf.id)
-          message.success('Matériel supprimé avec succès')
-          router.push("/materiels")
-        } catch (error) {
-          console.error("Erreur lors de la suppression :", error)
-          message.error('Erreur lors de la suppression')
-        }
-      }
-    })
+      content: 'Êtes-vous sûr de vouloir supprimer cette expédition ? Cette action est irréversible.',
+      onConfirm: async () => {
+        await deleteMaterielPdf(materielPdf.id);
+      },
+      onSuccess: () => {
+        message.success('Expédition supprimée avec succès');
+        router.push("/materiels");
+      },
+      onError: () => {
+        message.error('Erreur lors de la suppression');
+      },
+    });
   }
 
   return (

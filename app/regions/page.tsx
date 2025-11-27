@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Space, Modal, message, Input, Form } from "antd";
+import { Table, Card, Button, Space, message, Input, Form } from "antd";
 import { Edit, Trash2, Plus, Search, MapPin } from "lucide-react";
 import {
   getAllRegions,
@@ -11,6 +11,7 @@ import {
   deleteRegion,
 } from "../actions";
 import { Region } from "@/type";
+import { confirmDelete } from "../utils/confirmDelete";
 
 export default function RegionsPage() {
   const [regions, setRegions] = useState<Region[]>([]);
@@ -38,21 +39,18 @@ export default function RegionsPage() {
   }, []);
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    confirmDelete({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer cette région ?",
-      okText: "Supprimer",
-      okType: "danger",
-      cancelText: "Annuler",
-      width: 500,
-      onOk: async () => {
-        try {
-          await deleteRegion(id);
-          message.success("Région supprimée avec succès");
-          fetchRegions();
-        } catch (error) {
-          message.error("Erreur lors de la suppression");
-        }
+      onConfirm: async () => {
+        await deleteRegion(id);
+      },
+      onSuccess: () => {
+        message.success("Région supprimée avec succès");
+        fetchRegions();
+      },
+      onError: () => {
+        message.error("Erreur lors de la suppression");
       },
     });
   };
