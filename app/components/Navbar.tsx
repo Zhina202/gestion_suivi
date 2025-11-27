@@ -44,34 +44,31 @@ const Navbar = () => {
                     left: 0,
                     right: 0,
                     zIndex: 1000,
-                    height: 70,
+                    height: 64,
                     display: 'flex',
                     alignItems: 'center',
                     padding: '0 24px',
-                    background: 'linear-gradient(135deg, #DC143C 0%, #B71C1C 100%)',
-                    boxShadow: '0 4px 12px rgba(220, 20, 60, 0.3)',
-                    borderBottom: 'none',
+                    background: '#ffffff',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    borderBottom: '1px solid #e5e7eb',
                     width: '100%'
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <Button
                         type="text"
-                        icon={<MenuIcon className="w-5 h-5 text-white" />}
+                        icon={<MenuIcon className="w-5 h-5" />}
                         onClick={() => setMobileMenuOpen(true)}
-                        className="md:hidden hover:bg-white/10"
+                        className="md:hidden"
                         aria-label="Menu"
-                        style={{ color: 'white' }}
                     />
                     <div className="flex items-center gap-3">
-                        <div className="bg-white rounded-lg p-1.5 shadow-md">
-                            <Logo size={36} alt="Logo CENI" />
-                        </div>
+                        <Logo size={36} alt="Logo CENI" />
                         <div className="hidden sm:block">
-                            <div className="font-bold text-lg md:text-xl text-white">
-                                CENI <span className="text-yellow-300">Madagascar</span>
+                            <div className="font-semibold text-lg md:text-xl text-gray-900">
+                                CENI <span className="text-[#DC143C]">Madagascar</span>
                             </div>
-                            <div className="text-xs text-white/90 hidden md:block font-medium">
+                            <div className="text-xs text-gray-600 hidden md:block">
                                 Gestion des Matériels Électoraux
                             </div>
                         </div>
@@ -79,19 +76,17 @@ const Navbar = () => {
                 </div>
 
                 <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <div className="hidden md:flex items-center gap-3 text-white/90 text-sm">
+                    <div className="hidden md:flex items-center gap-3 text-gray-700 text-sm">
                         <div className="text-right">
-                            <div className="font-semibold">{user?.fullName || 'Utilisateur'}</div>
-                            <div className="text-xs text-white/70">{user?.primaryEmailAddress?.emailAddress}</div>
+                            <div className="font-medium">{user?.fullName || 'Utilisateur'}</div>
+                            <div className="text-xs text-gray-500">{user?.primaryEmailAddress?.emailAddress}</div>
                         </div>
                     </div>
-                    <div className="bg-white/10 rounded-lg p-1">
-                        <UserButton appearance={{
-                            elements: {
-                                avatarBox: "w-9 h-9"
-                            }
-                        }} />
-                    </div>
+                    <UserButton appearance={{
+                        elements: {
+                            avatarBox: "w-9 h-9"
+                        }
+                    }} />
                 </div>
             </Header>
 

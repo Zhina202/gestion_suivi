@@ -146,7 +146,7 @@ export async function getExpeditionsByEmail(email: string): Promise<Expedition[]
     // Mise à jour automatique des statuts si nécessaire
     const today = new Date();
     const updatedExpeditions = await Promise.all(
-      user.expeditions.map(async (expedition) => {
+      user.expeditions.map(async (expedition: any) => {
         // Si l'expédition est en transit et que la date d'arrivée est passée sans réception
         if (
           expedition.status === ExpeditionStatus.EN_TRANSIT &&
@@ -229,6 +229,29 @@ export async function getExpeditionById(expeditionId: string): Promise<Expeditio
   }
 }
 
+// Fonction utilitaire pour convertir les statuts numériques en enum
+function convertStatusToEnum(status: string | number | ExpeditionStatus): ExpeditionStatus {
+  if (typeof status === 'string' && Object.values(ExpeditionStatus).includes(status as ExpeditionStatus)) {
+    return status as ExpeditionStatus;
+  }
+  
+  if (typeof status === 'number') {
+    const statusMap: Record<number, ExpeditionStatus> = {
+      1: ExpeditionStatus.BROUILLON,
+      2: ExpeditionStatus.EN_TRANSIT,
+      3: ExpeditionStatus.RECU,
+      4: ExpeditionStatus.ENDOMMAGE,
+      5: ExpeditionStatus.PERDU,
+      6: ExpeditionStatus.DISTRIBUE,
+      7: ExpeditionStatus.RETOURNE,
+      8: ExpeditionStatus.ARCHIVE
+    };
+    return statusMap[status] || ExpeditionStatus.BROUILLON;
+  }
+  
+  return ExpeditionStatus.BROUILLON;
+}
+
 /**
  * Met à jour une expédition
  */
@@ -246,8 +269,11 @@ export async function updateExpedition(
       throw new Error(`Expédition ${expeditionData.id} introuvable`);
     }
 
+    // Convertir le statut en enum si nécessaire
+    const statusEnum = convertStatusToEnum(expeditionData.status);
+    
     // Détecter le changement de statut pour créer un mouvement
-    const statusChanged = existingExpedition.status !== expeditionData.status;
+    const statusChanged = existingExpedition.status !== statusEnum;
     const oldStatus = existingExpedition.status;
 
     // Convertir les dates string en DateTime si présentes
@@ -271,7 +297,7 @@ export async function updateExpedition(
         dateArrive: dateArrive,
         nomRecepteur: expeditionData.nomRecepteur,
         adresseRecepteur: expeditionData.adresseRecepteur,
-        status: expeditionData.status,
+        status: statusEnum,
         regionId: expeditionData.regionId || null,
         districtId: expeditionData.districtId || null,
         communeId: expeditionData.communeId || null,
@@ -310,20 +336,20 @@ export async function updateExpedition(
 
     // Supprimer les matériels retirés
     const materielsToDelete = existingMateriels.filter(
-      (existing) => !receivedMateriels.some((r) => r.id === existing.id)
+      (existing: any) => !receivedMateriels.some((r: any) => r.id === existing.id)
     );
 
     if (materielsToDelete.length > 0) {
       await prisma.materiel.deleteMany({
         where: {
-          id: { in: materielsToDelete.map((m) => m.id) }
+          id: { in: materielsToDelete.map((m: any) => m.id) }
         }
       });
     }
 
     // Mettre à jour ou créer les matériels
     for (const materielData of receivedMateriels) {
-      const existingMateriel = existingMateriels.find((m) => m.id === materielData.id);
+      const existingMateriel = existingMateriels.find((m: any) => m.id === materielData.id);
 
       if (existingMateriel) {
         // Mettre à jour le matériel existant
@@ -451,7 +477,7 @@ export async function updatedMaterielPdf(materielPdf: any) {
     dateArrive: materielPdf.dateArrive || materielPdf.date_arrive || undefined,
     nomRecepteur: materielPdf.nomRecepteur || materielPdf.nom_recepteur || "",
     adresseRecepteur: materielPdf.adresseRecepteur || materielPdf.adresse_recepteur || "",
-    status: materielPdf.status || ExpeditionStatus.BROUILLON,
+    status: convertStatusToEnum(materielPdf.status),
     regionId: materielPdf.regionId,
     districtId: materielPdf.districtId,
     communeId: materielPdf.communeId,
@@ -572,10 +598,440 @@ export async function getCentresVoteByCommune(communeId: string) {
 export async function getAllTypeMateriels() {
   try {
     return await prisma.typeMateriel.findMany({
-      orderBy: { nom: 'asc' }
+      orderBy: { nom: 'asc' },
+      include: {
+        materiels: true
+      }
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des types de matériels:", error);
+    return [];
+  }
+}
+
+export async function createTypeMateriel(data: {
+  code: string;
+  nom: string;
+  categorie: string;
+  description?: string;
+  unite?: string;
+}) {
+  try {
+    return await prisma.typeMateriel.create({
+      data
+    });
+  } catch (error) {
+    console.error("Erreur lors de la création du type de matériel:", error);
+    throw error;
+  }
+}
+
+export async function updateTypeMateriel(id: string, data: {
+  code?: string;
+  nom?: string;
+  categorie?: string;
+  description?: string;
+  unite?: string;
+}) {
+  try {
+    return await prisma.typeMateriel.update({
+      where: { id },
+      data
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du type de matériel:", error);
+    throw error;
+  }
+}
+
+export async function deleteTypeMateriel(id: string) {
+  try {
+    return await prisma.typeMateriel.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du type de matériel:", error);
+    throw error;
+  }
+}
+
+// ============================================
+// GESTION DES UTILISATEURS
+// ============================================
+
+export async function getAllUsers() {
+  try {
+    return await prisma.user.findMany({
+      orderBy: { name: 'asc' },
+      include: {
+        expeditions: true,
+        materiels: true,
+        mouvements: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    return [];
+  }
+}
+
+export async function getUserById(id: string) {
+  try {
+    return await prisma.user.findUnique({
+      where: { id },
+      include: {
+        expeditions: true,
+        materiels: true,
+        mouvements: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur:", error);
+    return null;
+  }
+}
+
+export async function updateUser(id: string, data: {
+  name?: string;
+  role?: string;
+  phone?: string;
+  fonction?: string;
+}) {
+  try {
+    return await prisma.user.update({
+      where: { id },
+      data
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de l'utilisateur:", error);
+    throw error;
+  }
+}
+
+export async function deleteUser(id: string) {
+  try {
+    return await prisma.user.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'utilisateur:", error);
+    throw error;
+  }
+}
+
+// ============================================
+// GESTION DES RÉGIONS (CRUD complet)
+// ============================================
+
+export async function createRegion(data: {
+  code: string;
+  nom: string;
+  chefLieu?: string;
+}) {
+  try {
+    return await prisma.region.create({
+      data,
+      include: {
+        districts: true,
+        expeditions: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la création de la région:", error);
+    throw error;
+  }
+}
+
+export async function updateRegion(id: string, data: {
+  code?: string;
+  nom?: string;
+  chefLieu?: string;
+}) {
+  try {
+    return await prisma.region.update({
+      where: { id },
+      data,
+      include: {
+        districts: true,
+        expeditions: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la région:", error);
+    throw error;
+  }
+}
+
+export async function deleteRegion(id: string) {
+  try {
+    return await prisma.region.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la région:", error);
+    throw error;
+  }
+}
+
+// ============================================
+// GESTION DES DISTRICTS (CRUD complet)
+// ============================================
+
+export async function getAllDistricts() {
+  try {
+    return await prisma.district.findMany({
+      orderBy: { nom: 'asc' },
+      include: {
+        region: true,
+        communes: true,
+        expeditions: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des districts:", error);
+    return [];
+  }
+}
+
+export async function createDistrict(data: {
+  code: string;
+  nom: string;
+  regionId: string;
+  chefLieu?: string;
+}) {
+  try {
+    return await prisma.district.create({
+      data,
+      include: {
+        region: true,
+        communes: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la création du district:", error);
+    throw error;
+  }
+}
+
+export async function updateDistrict(id: string, data: {
+  code?: string;
+  nom?: string;
+  regionId?: string;
+  chefLieu?: string;
+}) {
+  try {
+    return await prisma.district.update({
+      where: { id },
+      data,
+      include: {
+        region: true,
+        communes: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du district:", error);
+    throw error;
+  }
+}
+
+export async function deleteDistrict(id: string) {
+  try {
+    return await prisma.district.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du district:", error);
+    throw error;
+  }
+}
+
+// ============================================
+// GESTION DES COMMUNES (CRUD complet)
+// ============================================
+
+export async function getAllCommunes() {
+  try {
+    return await prisma.commune.findMany({
+      orderBy: { nom: 'asc' },
+      include: {
+        district: {
+          include: {
+            region: true
+          }
+        },
+        centresVote: true,
+        expeditions: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des communes:", error);
+    return [];
+  }
+}
+
+export async function createCommune(data: {
+  code: string;
+  nom: string;
+  districtId: string;
+}) {
+  try {
+    return await prisma.commune.create({
+      data,
+      include: {
+        district: true,
+        centresVote: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la création de la commune:", error);
+    throw error;
+  }
+}
+
+export async function updateCommune(id: string, data: {
+  code?: string;
+  nom?: string;
+  districtId?: string;
+}) {
+  try {
+    return await prisma.commune.update({
+      where: { id },
+      data,
+      include: {
+        district: true,
+        centresVote: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la commune:", error);
+    throw error;
+  }
+}
+
+export async function deleteCommune(id: string) {
+  try {
+    return await prisma.commune.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la commune:", error);
+    throw error;
+  }
+}
+
+// ============================================
+// GESTION DES CENTRES DE VOTE (CRUD complet)
+// ============================================
+
+export async function getAllCentresVote() {
+  try {
+    return await prisma.centreVote.findMany({
+      orderBy: { nom: 'asc' },
+      include: {
+        commune: {
+          include: {
+            district: {
+              include: {
+                region: true
+              }
+            }
+          }
+        },
+        expeditions: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des centres de vote:", error);
+    return [];
+  }
+}
+
+export async function createCentreVote(data: {
+  code: string;
+  nom: string;
+  communeId: string;
+  adresse?: string;
+  capacite?: number;
+}) {
+  try {
+    return await prisma.centreVote.create({
+      data,
+      include: {
+        commune: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la création du centre de vote:", error);
+    throw error;
+  }
+}
+
+export async function updateCentreVote(id: string, data: {
+  code?: string;
+  nom?: string;
+  communeId?: string;
+  adresse?: string;
+  capacite?: number;
+}) {
+  try {
+    return await prisma.centreVote.update({
+      where: { id },
+      data,
+      include: {
+        commune: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du centre de vote:", error);
+    throw error;
+  }
+}
+
+export async function deleteCentreVote(id: string) {
+  try {
+    return await prisma.centreVote.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression du centre de vote:", error);
+    throw error;
+  }
+}
+
+// ============================================
+// GESTION DES MOUVEMENTS
+// ============================================
+
+export async function getAllMouvements() {
+  try {
+    return await prisma.mouvement.findMany({
+      orderBy: { date: 'desc' },
+      include: {
+        expedition: {
+          include: {
+            materiels: true
+          }
+        },
+        user: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des mouvements:", error);
+    return [];
+  }
+}
+
+export async function getMouvementsByExpedition(expeditionId: string) {
+  try {
+    return await prisma.mouvement.findMany({
+      where: { expeditionId },
+      orderBy: { date: 'desc' },
+      include: {
+        user: true
+      }
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des mouvements:", error);
     return [];
   }
 }
@@ -611,7 +1067,7 @@ export async function getExpeditionStats(email?: string) {
       }
     };
 
-    expeditions.forEach(exp => {
+    expeditions.forEach((exp: any) => {
       stats.parStatut[exp.status] = (stats.parStatut[exp.status] || 0) + 1;
     });
 

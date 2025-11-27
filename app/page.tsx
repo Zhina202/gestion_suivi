@@ -54,14 +54,11 @@ export default async function Home() {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-[260px] px-4 md:px-6 w-full">
+        <main className="flex-1 md:ml-[240px] px-4 md:px-6 w-full">
           <div className="mb-6 md:mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-1 h-8 bg-gradient-to-b from-[#DC143C] to-[#B71C1C] rounded-full"></div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Tableau de Bord</h1>
-                <p className="text-gray-600 mt-1 text-sm md:text-base">Vue d'ensemble des matériels électoraux de la CENI</p>
-              </div>
+            <div className="mb-4">
+              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Tableau de Bord</h1>
+              <p className="text-gray-600 mt-1 text-sm">Vue d'ensemble des matériels électoraux</p>
             </div>
           </div>
 

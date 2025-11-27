@@ -3,7 +3,17 @@ import React from 'react'
 import { Menu } from 'antd'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Package } from 'lucide-react'
+import { 
+  LayoutDashboard, 
+  Package, 
+  Users, 
+  MapPin, 
+  Building2, 
+  Home, 
+  Vote, 
+  Tag, 
+  History 
+} from 'lucide-react'
 
 const Sidebar: React.FC = () => {
   const pathname = usePathname()
@@ -16,8 +26,67 @@ const Sidebar: React.FC = () => {
     },
     { 
       key: '/materiels', 
-      label: <Link href="/materiels">Matériels</Link>,
+      label: <Link href="/materiels">Expéditions</Link>,
       icon: <Package className="w-4 h-4" />
+    },
+    { 
+      type: 'divider' 
+    },
+    {
+      key: 'geographie',
+      label: 'Géographie',
+      type: 'group',
+    },
+    { 
+      key: '/regions', 
+      label: <Link href="/regions">Régions</Link>,
+      icon: <MapPin className="w-4 h-4" />
+    },
+    { 
+      key: '/districts', 
+      label: <Link href="/districts">Districts</Link>,
+      icon: <Building2 className="w-4 h-4" />
+    },
+    { 
+      key: '/communes', 
+      label: <Link href="/communes">Communes</Link>,
+      icon: <Home className="w-4 h-4" />
+    },
+    { 
+      key: '/centres-vote', 
+      label: <Link href="/centres-vote">Centres de Vote</Link>,
+      icon: <Vote className="w-4 h-4" />
+    },
+    { 
+      type: 'divider' 
+    },
+    {
+      key: 'catalogue',
+      label: 'Catalogue',
+      type: 'group',
+    },
+    { 
+      key: '/types-materiels', 
+      label: <Link href="/types-materiels">Types de Matériels</Link>,
+      icon: <Tag className="w-4 h-4" />
+    },
+    { 
+      type: 'divider' 
+    },
+    {
+      key: 'administration',
+      label: 'Administration',
+      type: 'group',
+    },
+    { 
+      key: '/users', 
+      label: <Link href="/users">Utilisateurs</Link>,
+      icon: <Users className="w-4 h-4" />
+    },
+    { 
+      key: '/mouvements', 
+      label: <Link href="/mouvements">Historique</Link>,
+      icon: <History className="w-4 h-4" />
     },
   ]
 
@@ -25,10 +94,10 @@ const Sidebar: React.FC = () => {
     <aside
       className="bg-white border-r border-gray-200 shadow-lg fixed left-0 bottom-0 overflow-y-auto hidden md:block"
       style={{
-        width: 260,
-        top: 70,
+        width: 240,
+        top: 64,
         zIndex: 999,
-        background: 'linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%)',
+        background: '#ffffff',
       }}
     >
       <div className="px-4 py-6 border-b border-gray-200">

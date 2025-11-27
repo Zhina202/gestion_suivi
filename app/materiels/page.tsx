@@ -13,18 +13,29 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { Table, Space, Button, Modal, Badge, Tag, Tooltip, Card, Input, Select, Row, Col, message } from 'antd';
 
-const getStatusBadge = (status: number) => {
-  switch (status) {
-    case 1:
+const getStatusBadge = (status: string | number) => {
+  // Gérer les anciens statuts numériques et les nouveaux enums
+  const statusStr = typeof status === 'number' 
+    ? ['', 'BROUILLON', 'EN_TRANSIT', 'RECU', 'ENDOMMAGE', 'PERDU'][status] || ''
+    : status;
+  
+  switch (statusStr) {
+    case "BROUILLON":
       return <Tag color="default">Brouillon</Tag>;
-    case 2:
+    case "EN_TRANSIT":
       return <Tag color="orange">En transit</Tag>;
-    case 3:
+    case "RECU":
       return <Tag color="green">Reçu</Tag>;
-    case 4:
+    case "DISTRIBUE":
+      return <Tag color="blue">Distribué</Tag>;
+    case "RETOURNE":
+      return <Tag color="cyan">Retourné</Tag>;
+    case "ENDOMMAGE":
       return <Tag color="volcano">Endommagé</Tag>;
-    case 5:
+    case "PERDU":
       return <Tag color="red">Perdu</Tag>;
+    case "ARCHIVE":
+      return <Tag color="default">Archivé</Tag>;
     default:
       return <Tag>Indéfini</Tag>;
   }
@@ -104,12 +115,51 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
     })
   }
 
+  const formatDate = (date: string | Date | null | undefined) => {
+    if (!date) return "—";
+    try {
+      const d = typeof date === 'string' ? new Date(date) : date;
+      return d.toLocaleDateString('fr-FR', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      });
+    } catch {
+      return "—";
+    }
+  };
+
   const columns: any = [
-    { title: 'ID', dataIndex: 'id', key: 'id', render: (id: string) => `MATRI-${id}` },
-    { title: 'Nom', dataIndex: 'design', key: 'design' },
-    { title: 'Description', key: 'description', render: (_: any, record: MaterielPdf) => getDescriptions(record) },
-    { title: 'Statut', dataIndex: 'status', key: 'status', render: (s: number) => getStatusBadge(s) },
-    { title: 'Date départ', dataIndex: 'date_depart', key: 'date_depart' },
+    { 
+      title: 'ID', 
+      dataIndex: 'id', 
+      key: 'id', 
+      render: (id: string) => <span className="font-mono text-sm">EXP-{id.substring(0, 8)}</span> 
+    },
+    { 
+      title: 'Désignation', 
+      dataIndex: 'designation', 
+      key: 'designation',
+      render: (text: string, record: any) => record.designation || record.design || "—"
+    },
+    { 
+      title: 'Description', 
+      key: 'description', 
+      render: (_: any, record: MaterielPdf) => getDescriptions(record) 
+    },
+    { 
+      title: 'Statut', 
+      dataIndex: 'status', 
+      key: 'status', 
+      render: (s: string | number) => getStatusBadge(s) 
+    },
+    { 
+      title: 'Date départ', 
+      dataIndex: 'dateDepart', 
+      key: 'dateDepart',
+      render: (date: string | Date | null | undefined, record: any) => 
+        formatDate(date || record.date_depart)
+    },
     { title: 'Actions', key: 'actions', render: (_: any, record: any) => (
       <Space>
         <Tooltip title="Éditer">
@@ -178,19 +228,38 @@ export default function MaterielsPage() {
 
   // Filtrer les matériels
   const filteredMateriels = materielsPdf.filter((materielPdf: MaterielPdf) => {
-    // Filtre par texte de recherche (nom, ID)
+    // Filtre par texte de recherche (nom, ID, designation)
     if (searchText) {
       const searchLower = searchText.toLowerCase();
+      const designation = materielPdf.designation || materielPdf.design || "";
       const matchesSearch = 
-        materielPdf.design?.toLowerCase().includes(searchLower) ||
+        designation.toLowerCase().includes(searchLower) ||
         materielPdf.id.toLowerCase().includes(searchLower) ||
-        `MATRI-${materielPdf.id}`.toLowerCase().includes(searchLower);
+        `EXP-${materielPdf.id}`.toLowerCase().includes(searchLower);
       if (!matchesSearch) return false;
     }
 
-    // Filtre par statut
-    if (statusFilter !== undefined && materielPdf.status !== statusFilter) {
-      return false;
+    // Filtre par statut (gérer les anciens statuts numériques et les nouveaux enums)
+    if (statusFilter !== undefined) {
+      const recordStatus = materielPdf.status;
+      // Si le statut est un nombre, convertir en enum
+      const statusMap: Record<number, string> = {
+        1: "BROUILLON",
+        2: "EN_TRANSIT",
+        3: "RECU",
+        4: "ENDOMMAGE",
+        5: "PERDU"
+      };
+      const recordStatusStr = typeof recordStatus === 'number' 
+        ? statusMap[recordStatus] 
+        : recordStatus;
+      const filterStatusStr = typeof statusFilter === 'number' 
+        ? statusMap[statusFilter] 
+        : statusFilter;
+      
+      if (recordStatusStr !== filterStatusStr) {
+        return false;
+      }
     }
 
     return true;
@@ -216,30 +285,21 @@ export default function MaterielsPage() {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-[260px] px-4 md:px-6 w-full">
+        <main className="flex-1 md:ml-[240px] px-4 md:px-6 w-full">
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-1 h-10 bg-gradient-to-b from-[#DC143C] to-[#B71C1C] rounded-full"></div>
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Expéditions</h1>
-                  <p className="text-gray-600 mt-1 text-sm md:text-base">Gestion et suivi des matériels électoraux</p>
-                </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">Expéditions</h1>
+                <p className="text-gray-600 mt-1 text-sm">Gestion et suivi des matériels électoraux</p>
               </div>
               <div className="w-full sm:w-auto">
                 <Link href="/materiel/create" className="block">
                   <Button 
                     type='primary' 
                     size="large" 
-                    icon={<Plus className="w-5 h-5" />} 
+                    icon={<Plus className="w-4 h-4" />} 
                     block 
-                    className="sm:inline-block shadow-lg hover:shadow-xl transition-shadow"
-                    style={{
-                      background: 'linear-gradient(135deg, #DC143C 0%, #B71C1C 100%)',
-                      border: 'none',
-                      height: '48px',
-                      fontWeight: 600
-                    }}
+                    className="sm:inline-block"
                   >
                     <span className="hidden sm:inline">Nouvelle Expédition</span>
                     <span className="sm:hidden">Nouveau</span>

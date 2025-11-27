@@ -7,10 +7,10 @@ type WrapperProps = {
 const Wrapper = ({children} : WrapperProps ) => {
   return (
     <div style={{ 
-      minHeight: 'calc(100vh - 70px)', 
-      background: 'linear-gradient(180deg, #F8F9FA 0%, #FFFFFF 100%)', 
-      padding: '32px 0', 
-      marginTop: '70px',
+      minHeight: 'calc(100vh - 64px)', 
+      background: '#f9fafb', 
+      padding: '24px 0', 
+      marginTop: '64px',
       width: '100%',
       maxWidth: '100vw',
       overflowX: 'hidden'
