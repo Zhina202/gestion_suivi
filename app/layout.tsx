@@ -26,8 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <html lang="en" style={{ overflowX: 'hidden' }}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} style={{ overflowX: 'hidden', width: '100%' }}>
           <Navbar />
           {children}
         </body>

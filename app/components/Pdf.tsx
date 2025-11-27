@@ -80,7 +80,7 @@ const Pdf: React.FC<PdfProps> = (
                     </Button>
                 </div>
 
-                <div className='overflow-x-auto'>
+                <div className='overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6'>
                     <div className='bg-white p-6 md:p-10 rounded-lg border border-gray-200 shadow-sm' ref={materielRef} style={{ minWidth: '210mm', maxWidth: '100%', width: 'fit-content' }}>
                     {/* Header */}
                     <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b-2 border-gray-300'>

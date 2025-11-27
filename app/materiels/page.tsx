@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Layers, Edit, Trash2, Plus } from "lucide-react";
+import { Layers, Edit, Trash2, Plus, Search, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createEmptyMaterielPdf, getMaterielPdfByEmail } from "@/app/actions";
 import { useUser } from "@clerk/nextjs";
@@ -11,7 +11,7 @@ import { MaterielPdf } from "@/type";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { Table, Space, Button, Modal, Badge, Tooltip, Card } from 'antd';
+import { Table, Space, Button, Modal, Badge, Tooltip, Card, Input, Select, Row, Col } from 'antd';
 
 const getStatusBadge = (status: number) => {
   switch (status) {
@@ -30,6 +30,22 @@ const getStatusBadge = (status: number) => {
   }
 };
 
+// Fonction pour obtenir une couleur basée sur le nom de la catégorie
+const getCategoryColor = (categorie: string): string => {
+  const colors = [
+    'blue', 'green', 'orange', 'red', 'purple', 'cyan', 'magenta', 'gold', 
+    'lime', 'geekblue', 'volcano', 'processing'
+  ];
+  
+  // Utiliser le hash du nom pour obtenir une couleur cohérente
+  let hash = 0;
+  for (let i = 0; i < categorie.length; i++) {
+    hash = categorie.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
+
 const getCategoryBadges = (materielPdf: MaterielPdf) => {
   const materiels = materielPdf.Materiel || materielPdf.materiels || [];
   const categories = [...new Set(materiels.map(m => m.categorie).filter(c => c && c.trim() !== ''))];
@@ -41,13 +57,13 @@ const getCategoryBadges = (materielPdf: MaterielPdf) => {
   return (
     <Space size="small" wrap>
       {categories.map((categorie, index) => (
-        <Badge key={index} color="blue">{categorie}</Badge>
+        <Badge key={index} color={getCategoryColor(categorie)}>{categorie}</Badge>
       ))}
     </Space>
   );
 };
 
-const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void }> = ({ data, onDeleted }) => {
+const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; filteredData: MaterielPdf[] }> = ({ data, onDeleted, filteredData }: { data: MaterielPdf[]; onDeleted: () => void; filteredData: MaterielPdf[] }) => {
   const router = useRouter();
 
   const handleDelete = async (id: string) => {
@@ -97,16 +113,16 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void }> =
   ];
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6">
       <Table
         columns={columns}
-        dataSource={data.map(d => ({ ...d, key: d.id }))}
+        dataSource={filteredData.map(d => ({ ...d, key: d.id }))}
         onRow={(record: any) => ({ onClick: () => router.push(`/materiel/${record.id}`) })}
         scroll={{ x: 'max-content' }}
         pagination={{
           pageSize: 10,
           showSizeChanger: true,
-          showTotal: (total) => `Total: ${total} matériels`,
+          showTotal: (total: number) => `Total: ${total} matériels`,
           responsive: true
         }}
       />
@@ -120,6 +136,9 @@ export default function MaterielsPage() {
   const [isNameValide, setisNameValide] = useState(true);
   const email = user?.primaryEmailAddress?.emailAddress as string;
   const [materielsPdf, setMaterielPdf] = useState<MaterielPdf[]>([]);
+  const [searchText, setSearchText] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<number | undefined>(undefined);
+  const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
 
   const fetchMaterielPdf = async () => {
     try {
@@ -137,6 +156,47 @@ export default function MaterielsPage() {
   useEffect(() => {
     setisNameValide(materielPdfName.length <= 50);
   }, [materielPdfName]);
+
+  // Obtenir toutes les catégories uniques pour le filtre
+  const getAllCategories = () => {
+    const allCategories = new Set<string>();
+    materielsPdf.forEach((materielPdf: MaterielPdf) => {
+      const materiels = materielPdf.Materiel || materielPdf.materiels || [];
+      materiels.forEach((m: import("@prisma/client").Materiel) => {
+        if (m.categorie && m.categorie.trim() !== '') {
+          allCategories.add(m.categorie);
+        }
+      });
+    });
+    return Array.from(allCategories).sort();
+  };
+
+  // Filtrer les matériels
+  const filteredMateriels = materielsPdf.filter((materielPdf: MaterielPdf) => {
+    // Filtre par texte de recherche (nom, ID)
+    if (searchText) {
+      const searchLower = searchText.toLowerCase();
+      const matchesSearch = 
+        materielPdf.design?.toLowerCase().includes(searchLower) ||
+        materielPdf.id.toLowerCase().includes(searchLower) ||
+        `MATRI-${materielPdf.id}`.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+    }
+
+    // Filtre par statut
+    if (statusFilter !== undefined && materielPdf.status !== statusFilter) {
+      return false;
+    }
+
+    // Filtre par catégorie
+    if (categoryFilter) {
+      const materiels = materielPdf.Materiel || materielPdf.materiels || [];
+      const hasCategory = materiels.some((m: import("@prisma/client").Materiel) => m.categorie === categoryFilter);
+      if (!hasCategory) return false;
+    }
+
+    return true;
+  });
 
   const handleCreateMaterielPdf = async () => {
     try {
@@ -158,7 +218,7 @@ export default function MaterielsPage() {
           <Sidebar />
         </div>
 
-        <main className="flex-1 md:ml-60 px-4 md:px-6">
+        <main className="flex-1 md:ml-60 px-4 md:px-6 max-w-[1600px] mx-auto w-full">
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
@@ -191,7 +251,84 @@ export default function MaterielsPage() {
                 </Card>
               ) : (
                 <Card>
-                  <MaterielsTable data={materielsPdf} onDeleted={() => fetchMaterielPdf()} />
+                  {/* Filtres */}
+                  <div className="mb-6 space-y-4">
+                    <Row gutter={[16, 16]}>
+                      <Col xs={24} sm={12} md={8}>
+                        <Input
+                          placeholder="Rechercher par nom ou ID..."
+                          prefix={<Search className="w-4 h-4 text-gray-400" />}
+                          value={searchText}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
+                          allowClear
+                          size="large"
+                        />
+                      </Col>
+                      <Col xs={24} sm={12} md={8}>
+                        <Select
+                          placeholder="Filtrer par statut"
+                          value={statusFilter}
+                          onChange={(value: number | undefined) => setStatusFilter(value)}
+                          allowClear
+                          size="large"
+                          style={{ width: '100%' }}
+                          options={[
+                            { value: 1, label: 'Brouillon' },
+                            { value: 2, label: 'En transit' },
+                            { value: 3, label: 'Reçu' },
+                            { value: 4, label: 'Endommagé' },
+                            { value: 5, label: 'Perdu' }
+                          ]}
+                        />
+                      </Col>
+                      <Col xs={24} sm={24} md={8}>
+                        <Select
+                          placeholder="Filtrer par catégorie"
+                          value={categoryFilter}
+                          onChange={(value: string | undefined) => setCategoryFilter(value)}
+                          allowClear
+                          size="large"
+                          style={{ width: '100%' }}
+                          options={getAllCategories().map(cat => ({
+                            value: cat,
+                            label: <Badge color={getCategoryColor(cat)}>{cat}</Badge>
+                          }))}
+                        />
+                      </Col>
+                    </Row>
+                    {(searchText || statusFilter !== undefined || categoryFilter) && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Filter className="w-4 h-4" />
+                        <span>
+                          {filteredMateriels.length} matériel{filteredMateriels.length > 1 ? 's' : ''} trouvé{filteredMateriels.length > 1 ? 's' : ''}
+                          {materielsPdf.length !== filteredMateriels.length && ` sur ${materielsPdf.length}`}
+                        </span>
+                        <Button 
+                          type="link" 
+                          size="small" 
+                          onClick={() => {
+                            setSearchText("");
+                            setStatusFilter(undefined);
+                            setCategoryFilter(undefined);
+                          }}
+                        >
+                          Réinitialiser
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {filteredMateriels.length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500">Aucun matériel ne correspond aux filtres sélectionnés</p>
+                    </div>
+                  ) : (
+                    <MaterielsTable 
+                      data={materielsPdf} 
+                      filteredData={filteredMateriels}
+                      onDeleted={() => fetchMaterielPdf()} 
+                    />
+                  )}
                 </Card>
               )}
             </div>

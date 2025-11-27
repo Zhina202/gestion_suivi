@@ -11,7 +11,7 @@ type Props = {
 const Card: React.FC<Props> = ({ children, className = "", title, extra }) => {
   return (
     <AntCard 
-      className={className} 
+      className={`${className} max-w-full`}
       bodyStyle={{ padding: 20 }}
       title={title}
       extra={extra}
