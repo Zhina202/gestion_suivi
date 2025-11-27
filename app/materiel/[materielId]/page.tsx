@@ -7,7 +7,7 @@ import Sidebar from '@/app/components/Sidebar'
 import { Edit, ArrowLeft, Download, Trash2 } from 'lucide-react'
 import Pdf from '@/app/components/Pdf'
 import Card from '@/app/components/Card'
-import { Badge, Button, Descriptions, Space, message, Modal } from 'antd'
+import { Badge, Button, Descriptions, Space, message, App } from 'antd'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { deleteMaterielPdf } from '@/app/actions'
@@ -30,6 +30,7 @@ const getStatusBadge = (status: number) => {
 };
 
 const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
+  const { modal } = App.useApp();
   const [materielPdf, setMaterielPdf] = useState<MaterielPdf | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -62,7 +63,7 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
   const handleDelete = () => {
     if (!materielPdf) return;
     
-    Modal.confirm({
+    modal.confirm({
       title: 'Confirmer la suppression',
       content: 'Êtes-vous sûr de vouloir supprimer cette expédition ? Cette action est irréversible.',
       okText: 'Supprimer',
@@ -71,7 +72,6 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
       width: 520,
       centered: true,
       maskClosable: false,
-      zIndex: 10000,
       onOk: async () => {
         try {
           await deleteMaterielPdf(materielPdf.id);

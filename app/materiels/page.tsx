@@ -11,7 +11,7 @@ import { MaterielPdf } from "@/type";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { Table, Space, Button, Badge, Tag, Tooltip, Card, Input, Select, Row, Col, message, Modal } from 'antd';
+import { Table, Space, Button, Badge, Tag, Tooltip, Card, Input, Select, Row, Col, message, App } from 'antd';
 
 const getStatusBadge = (status: string | number) => {
   // Gérer les anciens statuts numériques et les nouveaux enums
@@ -72,9 +72,10 @@ const getDescriptions = (materielPdf: MaterielPdf) => {
 
 const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; filteredData: MaterielPdf[] }> = ({ data, onDeleted, filteredData }: { data: MaterielPdf[]; onDeleted: () => void; filteredData: MaterielPdf[] }) => {
   const router = useRouter();
+  const { modal } = App.useApp();
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Confirmer la suppression',
       content: 'Êtes-vous sûr de vouloir supprimer cette expédition ? Cette action est irréversible.',
       okText: 'Supprimer',
@@ -83,7 +84,6 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void; fil
       width: 520,
       centered: true,
       maskClosable: false,
-      zIndex: 10000,
       onOk: async () => {
         try {
           const res = await fetch(`/api/materiel/${id}`, { 

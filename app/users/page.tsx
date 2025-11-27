@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, Modal } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, App } from "antd";
 import { Edit, Trash2, Plus, Search, User as UserIcon } from "lucide-react";
 import { getAllUsers, updateUser, deleteUser } from "../actions";
 import { User, UserRole } from "@/type";
@@ -20,6 +20,7 @@ const getRoleBadge = (role: UserRole) => {
 };
 
 export default function UsersPage() {
+  const { modal } = App.useApp();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
@@ -74,7 +75,7 @@ export default function UsersPage() {
   };
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer cet utilisateur ?",
       okText: "Supprimer",
@@ -83,7 +84,6 @@ export default function UsersPage() {
       width: 520,
       centered: true,
       maskClosable: false,
-      zIndex: 10000,
       onOk: async () => {
         try {
           await deleteUser(id);

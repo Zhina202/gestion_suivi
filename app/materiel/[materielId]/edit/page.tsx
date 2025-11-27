@@ -10,10 +10,11 @@ import Materiel from '@/app/components/Materiel'
 import { useRouter } from 'next/navigation'
 import Pdf from '@/app/components/Pdf'
 import Card from '@/app/components/Card'
-import { Select, Button, Space, message, Modal } from 'antd'
+import { Select, Button, Space, message, App, Modal } from 'antd'
 import Link from 'next/link'
 
 const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
+  const { modal } = App.useApp();
   const [materielPdf, setMaterielPdf] = useState<MaterielPdf | null>(null);
   const [initialMaterielPdf, setInitialMaterielPdf] = useState<MaterielPdf | null>(null);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
@@ -124,7 +125,7 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
   const handleDelete = () => {
     if (!materielPdf) return;
     
-    Modal.confirm({
+    modal.confirm({
       title: 'Confirmer la suppression',
       content: 'Êtes-vous sûr de vouloir supprimer cette expédition ? Cette action est irréversible.',
       okText: 'Supprimer',
@@ -133,7 +134,6 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
       width: 520,
       centered: true,
       maskClosable: false,
-      zIndex: 10000,
       onOk: async () => {
         try {
           await deleteMaterielPdf(materielPdf.id);

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, Select, InputNumber, Modal } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, Select, InputNumber, App } from "antd";
 import { Edit, Trash2, Plus, Search, Vote } from "lucide-react";
 import {
   getAllCentresVote,
@@ -16,6 +16,7 @@ import {
 import { CentreVote, Commune, District } from "@/type";
 
 export default function CentresVotePage() {
+  const { modal } = App.useApp();
   const [centresVote, setCentresVote] = useState<CentreVote[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
@@ -114,7 +115,7 @@ export default function CentresVotePage() {
   };
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer ce centre de vote ?",
       okText: "Supprimer",
@@ -123,7 +124,6 @@ export default function CentresVotePage() {
       width: 520,
       centered: true,
       maskClosable: false,
-      zIndex: 10000,
       onOk: async () => {
         try {
           await deleteCentreVote(id);
@@ -131,7 +131,7 @@ export default function CentresVotePage() {
           fetchCentresVote();
         } catch (error) {
           message.error("Erreur lors de la suppression");
-          throw error; // Empêche la fermeture du modal en cas d'erreur
+          throw error;
         }
       },
     });

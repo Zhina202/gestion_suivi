@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, TextArea, Modal } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, TextArea, App } from "antd";
 import { Edit, Trash2, Plus, Search, Package } from "lucide-react";
 import {
   getAllTypeMateriels,
@@ -13,6 +13,7 @@ import {
 import { TypeMateriel } from "@/type";
 
 export default function TypesMaterielsPage() {
+  const { modal } = App.useApp();
   const [typesMateriels, setTypesMateriels] = useState<TypeMateriel[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
@@ -77,7 +78,7 @@ export default function TypesMaterielsPage() {
   };
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer ce type de matériel ?",
       okText: "Supprimer",
@@ -86,7 +87,6 @@ export default function TypesMaterielsPage() {
       width: 520,
       centered: true,
       maskClosable: false,
-      zIndex: 10000,
       onOk: async () => {
         try {
           await deleteTypeMateriel(id);

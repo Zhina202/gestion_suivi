@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, Select, Modal } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, Select, App } from "antd";
 import { Edit, Trash2, Plus, Search, Home } from "lucide-react";
 import {
   getAllCommunes,
@@ -16,6 +16,7 @@ import {
 import { Commune, District, Region } from "@/type";
 
 export default function CommunesPage() {
+  const { modal } = App.useApp();
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
@@ -112,7 +113,7 @@ export default function CommunesPage() {
   };
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Confirmer la suppression",
       content: "Êtes-vous sûr de vouloir supprimer cette commune ?",
       okText: "Supprimer",
@@ -121,7 +122,6 @@ export default function CommunesPage() {
       width: 520,
       centered: true,
       maskClosable: false,
-      zIndex: 10000,
       onOk: async () => {
         try {
           await deleteCommune(id);
