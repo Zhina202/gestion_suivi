@@ -7,7 +7,7 @@ interface Props {
     materielPdf : MaterielPdf 
     setMaterielPdf : (materielPdf:MaterielPdf) => void
 }
-const MaterielPdfInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
+const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | 
         HTMLTextAreaElement> , field : string) => {
@@ -79,4 +79,5 @@ const MaterielPdfInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
     )
 }
 
-export default MaterielPdfInfo
+export default MaterielInfo
+

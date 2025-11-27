@@ -5,7 +5,7 @@ import { MaterielPdf } from '@/type'
 import Wrapper from '@/app/components/Wrapper'
 import Sidebar from '@/app/components/Sidebar'
 import { Trash2, Save, ArrowLeft, X } from 'lucide-react'
-import MaterielPdfInfo from '@/app/components/MaterielPdfInfo'
+import MaterielInfo from '@/app/components/MaterielInfo'
 import Materiel from '@/app/components/Materiel'
 import { useRouter } from 'next/navigation'
 import Pdf from '@/app/components/Pdf'
@@ -210,7 +210,7 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           <div className='flex flex-col md:flex-row w-full gap-4'>
             <div className='flex w-full md:w-1/3 flex-col'>
               <Card>
-                <MaterielPdfInfo materielPdf={materielPdf} setMaterielPdf={setMaterielPdf} />
+                <MaterielInfo materielPdf={materielPdf} setMaterielPdf={setMaterielPdf} />
               </Card>
             </div>
 

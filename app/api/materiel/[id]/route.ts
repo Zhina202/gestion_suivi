@@ -15,3 +15,4 @@ export async function DELETE(req: NextRequest, context: any) {
     return NextResponse.json({ ok: false, error: 'Erreur lors de la suppression' }, { status: 500 })
   }
 }
+

@@ -56,7 +56,7 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void }> =
       content: 'Supprimer ce matériel ? Cette action est irréversible.',
       onOk: async () => {
         try {
-          const res = await fetch(`/api/materielPdf/${id}`, { method: 'DELETE' });
+          const res = await fetch(`/api/materiel/${id}`, { method: 'DELETE' });
           const json = await res.json();
           if (json.ok) onDeleted();
           else Modal.error({ title: 'Erreur', content: 'Impossible de supprimer' });
