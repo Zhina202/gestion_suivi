@@ -1,7 +1,7 @@
 import { MaterielPdf } from '@/type'
 import { ArrowDownFromLine } from 'lucide-react'
 import React, { useRef } from 'react'
-import { Button } from 'antd'
+import { Button, Badge } from 'antd'
 import { Layers } from 'lucide-react'
 import html2canvas from 'html2canvas-pro'
 import jsPDF from 'jspdf'
@@ -80,7 +80,8 @@ const Pdf: React.FC<PdfProps> = (
                     </Button>
                 </div>
 
-                <div className='bg-white p-6 md:p-10 rounded-lg border border-gray-200 shadow-sm' ref={materielRef} style={{ minWidth: '210mm' }}>
+                <div className='overflow-x-auto'>
+                    <div className='bg-white p-6 md:p-10 rounded-lg border border-gray-200 shadow-sm' ref={materielRef} style={{ minWidth: '210mm', maxWidth: '100%', width: 'fit-content' }}>
                     {/* Header */}
                     <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b-2 border-gray-300'>
                         <div className='flex items-center mb-4 md:mb-0'>
@@ -144,7 +145,13 @@ const Pdf: React.FC<PdfProps> = (
                                         <tr key={index + 1} className='hover:bg-gray-50'>
                                             <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700 font-medium'>{index + 1}</td>
                                             <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800'>{materiel.design || "—"}</td>
-                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700'>{materiel.categorie || "—"}</td>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700'>
+                                                {materiel.categorie && materiel.categorie.trim() !== '' ? (
+                                                    <Badge color="blue">{materiel.categorie}</Badge>
+                                                ) : (
+                                                    "—"
+                                                )}
+                                            </td>
                                             <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700'>{materiel.description || "—"}</td>
                                             <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800 font-semibold text-center'>{materiel.quantity}</td>
                                         </tr>
@@ -153,6 +160,7 @@ const Pdf: React.FC<PdfProps> = (
                             </table>
                         </div>
                     )}
+                    </div>
                 </div>
             </div>
         </div>

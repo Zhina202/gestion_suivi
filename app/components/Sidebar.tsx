@@ -27,7 +27,7 @@ const Sidebar: React.FC = () => {
       style={{
         width: 240,
         top: 64,
-        zIndex: 30,
+        zIndex: 999,
       }}
     >
       <Menu 

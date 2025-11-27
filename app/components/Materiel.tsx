@@ -2,7 +2,7 @@ import React from 'react'
 import { MaterielPdf } from '@/type'
 import { Plus, Trash } from 'lucide-react'
 import type { Materiel as MaterielType } from "@/type"
-import { Button, Input, InputNumber, Space } from 'antd'
+import { Button, Input, InputNumber, Space, Badge } from 'antd'
 
 interface Props {
     materielPdf : MaterielPdf 
@@ -102,13 +102,18 @@ const Materiel : React.FC<Props> = ({ materielPdf , setMaterielPdf}) => {
                                 />
                             </td>
                             <td className='p-3'>
-                                <Input
-                                    value={materiel.categorie}
-                                    onChange={(e) => handleCategorieChange(index, e.target.value)}
-                                    placeholder='Catégorie'
-                                    aria-label={`Catégorie du matériel ${index + 1}`}
-                                    size="large"
-                                />
+                                <div className='flex flex-col gap-2'>
+                                    <Input
+                                        value={materiel.categorie}
+                                        onChange={(e) => handleCategorieChange(index, e.target.value)}
+                                        placeholder='Catégorie'
+                                        aria-label={`Catégorie du matériel ${index + 1}`}
+                                        size="large"
+                                    />
+                                    {materiel.categorie && materiel.categorie.trim() !== '' && (
+                                        <Badge color="blue" text={materiel.categorie} />
+                                    )}
+                                </div>
                             </td>
                             <td className='p-3'>
                                 <Input
