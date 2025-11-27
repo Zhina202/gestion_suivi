@@ -127,22 +127,22 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
 
         <main className="flex-1 md:ml-60 px-4 md:px-6">
           {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 md:mb-6">
+            <div className="flex items-center gap-2 md:gap-4 mb-4">
               <Link href="/materiels">
                 <Button type="text" icon={<ArrowLeft className="w-4 h-4" />} />
               </Link>
               <div>
-                <h1 className="text-3xl font-bold">Détails du matériel</h1>
-                <p className="text-gray-500 mt-1">MATRI-{materielPdf.id}</p>
+                <h1 className="text-xl md:text-3xl font-bold">Détails du matériel</h1>
+                <p className="text-gray-500 mt-1 text-sm md:text-base">MATRI-{materielPdf.id}</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>{getStatusBadge(materielPdf.status)}</div>
-              <Space>
-                <Link href={`/materiel/${materielPdf.id}/edit`}>
-                  <Button type="primary" icon={<Edit className="w-4 h-4" />}>
+              <Space className="w-full sm:w-auto" wrap>
+                <Link href={`/materiel/${materielPdf.id}/edit`} className="flex-1 sm:flex-none">
+                  <Button type="primary" icon={<Edit className="w-4 h-4" />} block className="sm:block">
                     Modifier
                   </Button>
                 </Link>
@@ -150,6 +150,8 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
                   danger 
                   icon={<Trash2 className="w-4 h-4" />}
                   onClick={handleDelete}
+                  block
+                  className="sm:block"
                 >
                   Supprimer
                 </Button>
@@ -158,9 +160,9 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           </div>
 
           {/* Informations principales */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
             <Card>
-              <Descriptions title="Informations générales" column={1} bordered>
+              <Descriptions title="Informations générales" column={1} bordered size="small">
                 <Descriptions.Item label="Nom">
                   {materielPdf.design || "—"}
                 </Descriptions.Item>
@@ -177,12 +179,12 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
             </Card>
 
             <Card>
-              <Descriptions title="Émetteur" column={1} bordered>
+              <Descriptions title="Émetteur" column={1} bordered size="small">
                 <Descriptions.Item label="Nom">
                   {materielPdf.nom_emetteur || "—"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Adresse">
-                  <div className="max-w-xs whitespace-pre-wrap">
+                  <div className="max-w-xs whitespace-pre-wrap text-sm">
                     {materielPdf.adresse_emetteur || "—"}
                   </div>
                 </Descriptions.Item>
@@ -190,12 +192,12 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
             </Card>
 
             <Card>
-              <Descriptions title="Récepteur" column={1} bordered>
+              <Descriptions title="Récepteur" column={1} bordered size="small">
                 <Descriptions.Item label="Nom">
                   {materielPdf.nom_recepteur || "—"}
                 </Descriptions.Item>
                 <Descriptions.Item label="Adresse">
-                  <div className="max-w-xs whitespace-pre-wrap">
+                  <div className="max-w-xs whitespace-pre-wrap text-sm">
                     {materielPdf.adresse_recepteur || "—"}
                   </div>
                 </Descriptions.Item>
@@ -206,32 +208,32 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           {/* Liste des matériels */}
           {materielPdf.materiels && materielPdf.materiels.length > 0 && (
             <Card className="mb-6">
-              <h2 className="text-xl font-semibold mb-4">Matériels électoraux</h2>
+              <h2 className="text-lg md:text-xl font-semibold mb-4">Matériels électoraux</h2>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left p-3 font-semibold">#</th>
-                      <th className="text-left p-3 font-semibold">Design</th>
-                      <th className="text-left p-3 font-semibold">Catégorie</th>
-                      <th className="text-left p-3 font-semibold">Description</th>
-                      <th className="text-left p-3 font-semibold">Quantité</th>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="text-left p-2 md:p-3 text-xs md:text-sm font-semibold">#</th>
+                      <th className="text-left p-2 md:p-3 text-xs md:text-sm font-semibold">Design</th>
+                      <th className="text-left p-2 md:p-3 text-xs md:text-sm font-semibold">Catégorie</th>
+                      <th className="text-left p-2 md:p-3 text-xs md:text-sm font-semibold hidden md:table-cell">Description</th>
+                      <th className="text-left p-2 md:p-3 text-xs md:text-sm font-semibold">Quantité</th>
                     </tr>
                   </thead>
                   <tbody>
                     {materielPdf.materiels.map((materiel: import("@prisma/client").Materiel, index: number) => (
                       <tr key={materiel.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="p-3">{index + 1}</td>
-                        <td className="p-3">{materiel.design || "—"}</td>
-                        <td className="p-3">
+                        <td className="p-2 md:p-3 text-sm">{index + 1}</td>
+                        <td className="p-2 md:p-3 text-sm">{materiel.design || "—"}</td>
+                        <td className="p-2 md:p-3 text-sm">
                           {materiel.categorie ? (
                             <Badge color="blue">{materiel.categorie}</Badge>
                           ) : (
                             "—"
                           )}
                         </td>
-                        <td className="p-3">{materiel.description || "—"}</td>
-                        <td className="p-3 font-semibold">{materiel.quantity}</td>
+                        <td className="p-2 md:p-3 text-sm hidden md:table-cell">{materiel.description || "—"}</td>
+                        <td className="p-2 md:p-3 text-sm font-semibold">{materiel.quantity}</td>
                       </tr>
                     ))}
                   </tbody>

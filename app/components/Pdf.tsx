@@ -65,102 +65,98 @@ const Pdf: React.FC<PdfProps> = (
     }
 
     return (
-        // show export block on all sizes; previous class used `lg-block` (invalid) which hid it
         <div className='mt-4'>
-        <div className='border-base-300 border-2 border-dashed rounded-xl p-5'>
-            
-                <Button
-                    onClick={handleDownloadPdf}
-                    className='mb-4'
-                    type='default'
-                    icon={<ArrowDownFromLine />}
-                    aria-label='Exporter en PDF'
-                    title='Exporter en PDF'
-                >
-                    Exporter en PDF
-                </Button>
-
-                <div className='p-8' ref={materielRef}>
-                    <div className='flex justify-between items-center text-sm'>
-                        <div className='flex flex-col'>
-                            <div>
-                                <div className='flex items-center'>
-                                                                     <div className="mr-3">
-                                                                         <Logo size={56} alt="Logo du système de Suivi Matériel Électoral" />
-                                                                     </div>
-                                    
-                                    <span className="ml-3 font-bold text-2xl italic">
-                                        CE<span className="text-accent">NI</span>
-                                    </span>
-                                </div>
-                            </div>
-                            <h1 className='text-xl font-bold uppercase'>Matériel électoral</h1>
-                        </div>
-
-                        <div className='text-right uppercase'>
-                            <p className='badge badge-ghost'>
-                                Materiel° {materielPdf.id}
-                            </p>
-                            <p className='my-2'>
-                                <strong>Date : </strong>
-                                {formatDate(materielPdf.date_depart)}
-                            </p>
-                            <p>
-                                <strong>Date d’arrivée : </strong>
-                                {formatDate(materielPdf.date_arrive)}
-                            </p>
-                        </div>
-                        
-                    </div>
-
-                    <div className='my-6 flex justify-between'>
-                        <div>
-                            <p className='badge badge-ghost mb-2'>Emetteur</p>
-                            <p  className='text-sm font-bold italic'>{materielPdf.nom_emetteur}</p>
-                            <p className='text-sm text-gray-500 w-52 break-words'>{materielPdf.adresse_emetteur}</p>
-                        </div>
-                        <div className='text-right'>
-                            <p className='badge badge-ghost mb-2'>Recepteur</p>
-                            <p  className='text-sm font-bold italic'>{materielPdf.nom_recepteur}</p>
-                            <p className='text-sm text-gray-500 w-52 break-words'>{materielPdf.adresse_recepteur}</p>
-                        </div>
-                        
-                    </div>
-
-                    <div className='overflow-x-auto'>
-                        <table className='table table-zebra'>
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Design</th>
-                                    <th>Categorie</th>
-                                    <th>Description</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {materielPdf.materiels?.map((materiel: import("@prisma/client").Materiel, index: number) => (
-                                    <tr key={index + 1 }>
-                                        <td>{index + 1}</td>
-                                        <td>{materiel.design}</td>
-                                        <td>{materiel.categorie}</td>
-                                        <td>{materiel.description}</td>
-                                        <td>{materiel.quantity}</td>
-
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-
-
-                    
+            <div className='border border-gray-300 rounded-lg p-4 md:p-6 bg-white shadow-sm'>
+                <div className='mb-4 flex justify-between items-center flex-wrap gap-4'>
+                    <Button
+                        onClick={handleDownloadPdf}
+                        type='primary'
+                        size='large'
+                        icon={<ArrowDownFromLine className="w-4 h-4" />}
+                        aria-label='Exporter en PDF'
+                        title='Exporter en PDF'
+                    >
+                        Exporter en PDF
+                    </Button>
                 </div>
 
+                <div className='bg-white p-6 md:p-10 rounded-lg border border-gray-200 shadow-sm' ref={materielRef} style={{ minWidth: '210mm' }}>
+                    {/* Header */}
+                    <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b-2 border-gray-300'>
+                        <div className='flex items-center mb-4 md:mb-0'>
+                            <div className="mr-4">
+                                <Logo size={64} alt="Logo du système de Suivi Matériel Électoral" />
+                            </div>
+                            <div>
+                                <span className="font-bold text-3xl md:text-4xl italic text-gray-800">
+                                    CE<span className="text-blue-600">NI</span>
+                                </span>
+                                <h1 className='text-lg md:text-xl font-bold uppercase text-gray-700 mt-1'>Matériel électoral</h1>
+                            </div>
+                        </div>
+
+                        <div className='text-left md:text-right'>
+                            <div className='inline-block px-3 py-1 bg-gray-100 rounded-md mb-2'>
+                                <span className='text-sm font-semibold text-gray-700'>MATRI-{materielPdf.id}</span>
+                            </div>
+                            <div className='text-sm text-gray-600 space-y-1'>
+                                <p>
+                                    <strong className='text-gray-800'>Date départ : </strong>
+                                    {formatDate(materielPdf.date_depart) || "—"}
+                                </p>
+                                <p>
+                                    <strong className='text-gray-800'>Date d'arrivée : </strong>
+                                    {formatDate(materielPdf.date_arrive) || "—"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Emetteur et Récepteur */}
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 mb-8'>
+                        <div className='bg-gray-50 p-4 rounded-lg border border-gray-200'>
+                            <div className='text-xs uppercase font-semibold text-gray-500 mb-3 tracking-wider'>Émetteur</div>
+                            <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nom_emetteur || "—"}</p>
+                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresse_emetteur || "—"}</p>
+                        </div>
+                        <div className='bg-gray-50 p-4 rounded-lg border border-gray-200'>
+                            <div className='text-xs uppercase font-semibold text-gray-500 mb-3 tracking-wider'>Récepteur</div>
+                            <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nom_recepteur || "—"}</p>
+                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresse_recepteur || "—"}</p>
+                        </div>
+                    </div>
+
+                    {/* Tableau des matériels */}
+                    {materielPdf.materiels && materielPdf.materiels.length > 0 && (
+                        <div className='overflow-x-auto'>
+                            <table className='w-full border-collapse border border-gray-300'>
+                                <thead>
+                                    <tr className='bg-gray-100'>
+                                        <th className='border border-gray-300 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-12'>#</th>
+                                        <th className='border border-gray-300 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'>Design</th>
+                                        <th className='border border-gray-300 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'>Catégorie</th>
+                                        <th className='border border-gray-300 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'>Description</th>
+                                        <th className='border border-gray-300 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider w-24'>Quantité</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {materielPdf.materiels.map((materiel: import("@prisma/client").Materiel, index: number) => (
+                                        <tr key={index + 1} className='hover:bg-gray-50'>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700 font-medium'>{index + 1}</td>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800'>{materiel.design || "—"}</td>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700'>{materiel.categorie || "—"}</td>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-700'>{materiel.description || "—"}</td>
+                                            <td className='border border-gray-300 px-4 py-3 text-sm text-gray-800 font-semibold text-center'>{materiel.quantity}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default Pdf

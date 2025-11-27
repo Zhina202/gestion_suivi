@@ -43,14 +43,14 @@ export default function CreateMaterielPage() {
         </div>
 
         <main className="flex-1 md:ml-60 px-4 md:px-6">
-          <div className="mb-6">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 md:mb-6">
+            <div className="flex items-center gap-2 md:gap-4 mb-4">
               <Link href="/materiels">
                 <Button type="text" icon={<ArrowLeft className="w-4 h-4" />} />
               </Link>
               <div>
-                <h1 className="text-3xl font-bold">Créer un nouveau matériel</h1>
-                <p className="text-gray-500 mt-1">Ajoutez un nouveau matériel électoral au système</p>
+                <h1 className="text-xl md:text-3xl font-bold">Créer un nouveau matériel</h1>
+                <p className="text-gray-500 mt-1 text-sm md:text-base">Ajoutez un nouveau matériel électoral au système</p>
               </div>
             </div>
           </div>

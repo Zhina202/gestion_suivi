@@ -150,19 +150,19 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
 
         <main className="flex-1 md:ml-60 px-4 md:px-6">
           {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4 mb-4">
+          <div className="mb-4 md:mb-6">
+            <div className="flex items-center gap-2 md:gap-4 mb-4">
               <Link href={`/materiel/${materielPdf.id}`}>
                 <Button type="text" icon={<ArrowLeft className="w-4 h-4" />} />
               </Link>
               <div>
-                <h1 className="text-3xl font-bold">Modifier le matériel</h1>
-                <p className="text-gray-500 mt-1">MATRI-{materielPdf.id}</p>
+                <h1 className="text-xl md:text-3xl font-bold">Modifier le matériel</h1>
+                <p className="text-gray-500 mt-1 text-sm md:text-base">MATRI-{materielPdf.id}</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex flex-col">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex flex-col w-full sm:w-auto">
                 <label className="mb-1 font-medium text-sm">Statut</label>
                 <Select
                   value={materielPdf?.status}
@@ -176,13 +176,16 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
                     { value: 4, label: 'Endommagé' },
                     { value: 5, label: 'Perdu' }
                   ]}
-                  style={{ minWidth: 150 }}
+                  style={{ minWidth: 150, width: '100%' }}
+                  className="w-full sm:w-auto"
                 />
               </div>
-              <Space>
+              <Space className="w-full sm:w-auto" wrap>
                 <Button
                   onClick={handleCancel}
                   icon={<X className="w-4 h-4" />}
+                  block
+                  className="sm:inline-block"
                 >
                   Annuler
                 </Button>
@@ -192,6 +195,8 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
                   disabled={isSaveDisabled}
                   loading={isLoading}
                   icon={<Save className="w-4 h-4" />}
+                  block
+                  className="sm:inline-block"
                 >
                   Sauvegarder
                 </Button>
@@ -199,6 +204,8 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
                   danger
                   icon={<Trash2 className="w-4 h-4" />}
                   onClick={handleDelete}
+                  block
+                  className="sm:inline-block"
                 >
                   Supprimer
                 </Button>

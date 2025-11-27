@@ -97,11 +97,20 @@ const MaterielsTable: React.FC<{ data: MaterielPdf[]; onDeleted: () => void }> =
   ];
 
   return (
-    <Table
-      columns={columns}
-      dataSource={data.map(d => ({ ...d, key: d.id }))}
-  onRow={(record: any) => ({ onClick: () => router.push(`/materiel/${record.id}`) })}
-    />
+    <div className="overflow-x-auto">
+      <Table
+        columns={columns}
+        dataSource={data.map(d => ({ ...d, key: d.id }))}
+        onRow={(record: any) => ({ onClick: () => router.push(`/materiel/${record.id}`) })}
+        scroll={{ x: 'max-content' }}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          showTotal: (total) => `Total: ${total} matériels`,
+          responsive: true
+        }}
+      />
+    </div>
   )
 }
 
@@ -151,15 +160,16 @@ export default function MaterielsPage() {
 
         <main className="flex-1 md:ml-60 px-4 md:px-6">
           <div className="flex flex-col space-y-6">
-            <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold">Matériels</h1>
-                <p className="text-gray-500 mt-1">Liste et gestion des matériels électoraux</p>
+                <h1 className="text-2xl md:text-3xl font-bold">Matériels</h1>
+                <p className="text-gray-500 mt-1 text-sm md:text-base">Liste et gestion des matériels électoraux</p>
               </div>
-              <div>
-                <Link href="/materiel/create">
-                  <Button type='primary' size="large" icon={<Plus className="w-4 h-4" />}>
-                    Ajouter un matériel
+              <div className="w-full sm:w-auto">
+                <Link href="/materiel/create" className="block">
+                  <Button type='primary' size="large" icon={<Plus className="w-4 h-4" />} block className="sm:inline-block">
+                    <span className="hidden sm:inline">Ajouter un matériel</span>
+                    <span className="sm:hidden">Ajouter</span>
                   </Button>
                 </Link>
               </div>
