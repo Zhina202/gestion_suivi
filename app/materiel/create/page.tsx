@@ -7,6 +7,7 @@ import confetti from 'canvas-confetti'
 import { Button, Form, Input, DatePicker, message, Card, Space, Row, Col, Select } from 'antd'
 import { ArrowLeft, Plus } from 'lucide-react'
 import Wrapper from '@/app/components/Wrapper'
+import Sidebar from '@/app/components/Sidebar'
 import Link from 'next/link'
 import { Region, District, Commune, CentreVote } from '@/type'
 
@@ -125,8 +126,11 @@ export default function CreateMaterielPage() {
 
   return (
     <Wrapper>
-      <div className="min-h-screen bg-gray-50">
-        <main className="w-full px-4 md:px-8 py-6 md:py-8">
+      <div className="flex min-h-screen bg-gray-50">
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+        <main className="flex-1 md:ml-[240px] w-full px-4 md:px-8 py-6 md:py-8">
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-4">
               <Link href="/materiels">
