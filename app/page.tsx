@@ -6,18 +6,24 @@ import Card from "./components/Card";
 import Wrapper from "./components/Wrapper";
 import Link from "next/link";
 
-const statusLabel = (s: number) => {
-  switch (s) {
-    case 1:
+const statusLabel = (status: string) => {
+  switch (status) {
+    case "BROUILLON":
       return "Brouillon";
-    case 2:
+    case "EN_TRANSIT":
       return "En transit";
-    case 3:
+    case "RECU":
       return "Reçu";
-    case 4:
+    case "DISTRIBUE":
+      return "Distribué";
+    case "RETOURNE":
+      return "Retourné";
+    case "ENDOMMAGE":
       return "Endommagé";
-    case 5:
+    case "PERDU":
       return "Perdu";
+    case "ARCHIVE":
+      return "Archivé";
     default:
       return "Indéfini";
   }
@@ -26,17 +32,17 @@ const statusLabel = (s: number) => {
 export default async function Home() {
   // counts by status
   const [received, damaged, inTransit, lost, total] = await Promise.all([
-    prisma.materielPdf.count({ where: { status: 3 } }),
-    prisma.materielPdf.count({ where: { status: 4 } }),
-    prisma.materielPdf.count({ where: { status: 2 } }),
-    prisma.materielPdf.count({ where: { status: 5 } }),
-    prisma.materielPdf.count(),
+    prisma.expedition.count({ where: { status: "RECU" } }),
+    prisma.expedition.count({ where: { status: "ENDOMMAGE" } }),
+    prisma.expedition.count({ where: { status: "EN_TRANSIT" } }),
+    prisma.expedition.count({ where: { status: "PERDU" } }),
+    prisma.expedition.count(),
   ]);
 
-  const recent = await prisma.materielPdf.findMany({
-    orderBy: { date_depart: "desc" },
+  const recent = await prisma.expedition.findMany({
+    orderBy: { dateDepart: "desc" },
     take: 6,
-    select: { id: true, design: true, status: true, date_depart: true },
+    select: { id: true, designation: true, status: true, dateDepart: true },
   });
 
   const counts = { received, damaged, inTransit, lost };
@@ -132,7 +138,7 @@ export default async function Home() {
                       <li key={r.id} className="flex justify-between items-start p-4 hover:bg-gray-50 rounded-lg transition-all border border-transparent hover:border-gray-200">
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-sm text-gray-900 mb-1">EXP-{r.id}</div>
-                          <div className="text-xs text-gray-600 truncate mb-2">{r.design || "Sans désignation"}</div>
+                          <div className="text-xs text-gray-600 truncate mb-2">{r.designation || "Sans désignation"}</div>
                           <div className="inline-block px-2 py-1 bg-gray-100 rounded text-xs font-medium text-gray-700">
                             {statusLabel(r.status)}
                           </div>
