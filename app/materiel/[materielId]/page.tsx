@@ -12,18 +12,44 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { deleteMaterielPdf } from '@/app/actions'
 
-const getStatusBadge = (status: number) => {
-  switch (status) {
-    case 1:
+const getStatusBadge = (status: string | number) => {
+  // Gérer les anciens statuts numériques et les nouveaux enums
+  let statusStr: string;
+  
+  if (typeof status === 'number') {
+    // Conversion des anciens statuts numériques
+    const statusMap: Record<number, string> = {
+      1: "BROUILLON",
+      2: "EN_TRANSIT",
+      3: "RECU",
+      4: "ENDOMMAGE",
+      5: "PERDU",
+      6: "DISTRIBUE",
+      7: "RETOURNE",
+      8: "ARCHIVE"
+    };
+    statusStr = statusMap[status] || '';
+  } else {
+    statusStr = status;
+  }
+  
+  switch (statusStr) {
+    case "BROUILLON":
       return <Badge color="default">Brouillon</Badge>;
-    case 2:
+    case "EN_TRANSIT":
       return <Badge color="orange">En transit</Badge>;
-    case 3:
+    case "RECU":
       return <Badge color="green">Reçu</Badge>;
-    case 4:
-      return <Badge color="blue">Endommagé</Badge>;
-    case 5:
+    case "DISTRIBUE":
+      return <Badge color="blue">Distribué</Badge>;
+    case "RETOURNE":
+      return <Badge color="cyan">Retourné</Badge>;
+    case "ENDOMMAGE":
+      return <Badge color="volcano">Endommagé</Badge>;
+    case "PERDU":
       return <Badge color="red">Perdu</Badge>;
+    case "ARCHIVE":
+      return <Badge color="default">Archivé</Badge>;
     default:
       return <Badge>Indéfini</Badge>;
   }

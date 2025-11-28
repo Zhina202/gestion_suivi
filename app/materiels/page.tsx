@@ -15,9 +15,24 @@ import { Table, Space, Button, Badge, Tag, Tooltip, Card, Input, Select, Row, Co
 
 const getStatusBadge = (status: string | number) => {
   // Gérer les anciens statuts numériques et les nouveaux enums
-  const statusStr = typeof status === 'number' 
-    ? ['', 'BROUILLON', 'EN_TRANSIT', 'RECU', 'ENDOMMAGE', 'PERDU'][status] || ''
-    : status;
+  let statusStr: string;
+  
+  if (typeof status === 'number') {
+    // Conversion des anciens statuts numériques
+    const statusMap: Record<number, string> = {
+      1: "BROUILLON",
+      2: "EN_TRANSIT",
+      3: "RECU",
+      4: "ENDOMMAGE",
+      5: "PERDU",
+      6: "DISTRIBUE",
+      7: "RETOURNE",
+      8: "ARCHIVE"
+    };
+    statusStr = statusMap[status] || '';
+  } else {
+    statusStr = status;
+  }
   
   switch (statusStr) {
     case "BROUILLON":
@@ -215,7 +230,7 @@ export default function MaterielsPage() {
   const email = user?.primaryEmailAddress?.emailAddress as string;
   const [materielsPdf, setMaterielPdf] = useState<MaterielPdf[]>([]);
   const [searchText, setSearchText] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<number | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
   const fetchMaterielPdf = async () => {
     try {
@@ -248,7 +263,7 @@ export default function MaterielsPage() {
     }
 
     // Filtre par statut (gérer les anciens statuts numériques et les nouveaux enums)
-    if (statusFilter !== undefined) {
+    if (statusFilter !== undefined && statusFilter !== null) {
       const recordStatus = materielPdf.status;
       // Si le statut est un nombre, convertir en enum
       const statusMap: Record<number, string> = {
@@ -256,16 +271,16 @@ export default function MaterielsPage() {
         2: "EN_TRANSIT",
         3: "RECU",
         4: "ENDOMMAGE",
-        5: "PERDU"
+        5: "PERDU",
+        6: "DISTRIBUE",
+        7: "RETOURNE",
+        8: "ARCHIVE"
       };
       const recordStatusStr = typeof recordStatus === 'number' 
-        ? statusMap[recordStatus] 
+        ? statusMap[recordStatus] || ''
         : recordStatus;
-      const filterStatusStr = typeof statusFilter === 'number' 
-        ? statusMap[statusFilter] 
-        : statusFilter;
       
-      if (recordStatusStr !== filterStatusStr) {
+      if (recordStatusStr !== statusFilter) {
         return false;
       }
     }
@@ -361,16 +376,19 @@ export default function MaterielsPage() {
                         <Select
                           placeholder="Filtrer par statut"
                           value={statusFilter}
-                          onChange={(value: number | undefined) => setStatusFilter(value)}
+                          onChange={(value: string | undefined) => setStatusFilter(value)}
                           allowClear
                           size="large"
                           style={{ width: '100%' }}
                           options={[
-                            { value: 1, label: 'Brouillon' },
-                            { value: 2, label: 'En transit' },
-                            { value: 3, label: 'Reçu' },
-                            { value: 4, label: 'Endommagé' },
-                            { value: 5, label: 'Perdu' }
+                            { value: 'BROUILLON', label: 'Brouillon' },
+                            { value: 'EN_TRANSIT', label: 'En transit' },
+                            { value: 'RECU', label: 'Reçu' },
+                            { value: 'DISTRIBUE', label: 'Distribué' },
+                            { value: 'RETOURNE', label: 'Retourné' },
+                            { value: 'ENDOMMAGE', label: 'Endommagé' },
+                            { value: 'PERDU', label: 'Perdu' },
+                            { value: 'ARCHIVE', label: 'Archivé' }
                           ]}
                         />
                       </Col>

@@ -171,16 +171,23 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
               <div className="flex flex-col w-full sm:w-auto">
                 <label className="mb-1 font-medium text-sm">Statut</label>
                 <Select
-                  value={materielPdf?.status}
-                  onChange={(value: number) => {
-                    if (materielPdf) setMaterielPdf({ ...materielPdf, status: value })
+                  value={
+                    typeof materielPdf?.status === 'number'
+                      ? ['', 'BROUILLON', 'EN_TRANSIT', 'RECU', 'ENDOMMAGE', 'PERDU', 'DISTRIBUE', 'RETOURNE', 'ARCHIVE'][materielPdf.status] || materielPdf.status
+                      : materielPdf?.status
+                  }
+                  onChange={(value: string) => {
+                    if (materielPdf) setMaterielPdf({ ...materielPdf, status: value as any })
                   }}
                   options={[
-                    { value: 1, label: 'Brouillon' },
-                    { value: 2, label: 'En transit' },
-                    { value: 3, label: 'Reçu' },
-                    { value: 4, label: 'Endommagé' },
-                    { value: 5, label: 'Perdu' }
+                    { value: 'BROUILLON', label: 'Brouillon' },
+                    { value: 'EN_TRANSIT', label: 'En transit' },
+                    { value: 'RECU', label: 'Reçu' },
+                    { value: 'DISTRIBUE', label: 'Distribué' },
+                    { value: 'RETOURNE', label: 'Retourné' },
+                    { value: 'ENDOMMAGE', label: 'Endommagé' },
+                    { value: 'PERDU', label: 'Perdu' },
+                    { value: 'ARCHIVE', label: 'Archivé' }
                   ]}
                   style={{ minWidth: 150, width: '100%' }}
                   className="w-full sm:w-auto"
