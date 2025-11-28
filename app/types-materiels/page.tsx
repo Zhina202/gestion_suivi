@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import Sidebar from "../components/Sidebar";
-import { Table, Card, Button, Tag, Space, message, Input, Form, TextArea, App, Modal } from "antd";
+import { Table, Card, Button, Tag, Space, message, Input, Form, App, Modal } from "antd";
 import { Edit, Trash2, Plus, Search, Package } from "lucide-react";
 import {
   getAllTypeMateriels,
@@ -299,7 +299,7 @@ export default function TypesMaterielsPage() {
               { max: 500, message: "La description ne doit pas dépasser 500 caractères" },
             ]}
           >
-            <TextArea rows={3} placeholder="Description détaillée du type de matériel" />
+            <Input.TextArea rows={3} placeholder="Description détaillée du type de matériel" />
           </Form.Item>
           <Form.Item
             name="unite"

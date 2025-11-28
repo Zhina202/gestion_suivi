@@ -1,6 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
+
+// Forcer le rendu dynamique pour éviter le pré-rendu avec Clerk
+export const dynamic = 'force-dynamic'
 import { createEmptyMaterielPdf, getAllRegions, getDistrictsByRegion, getCommunesByDistrict, getCentresVoteByCommune } from '@/app/actions'
 import { useRouter } from 'next/navigation'
 import confetti from 'canvas-confetti'

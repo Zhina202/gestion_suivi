@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   description: "Système professionnel de gestion et de suivi des matériels électoraux pour la Commission Électorale Nationale Indépendante de Madagascar",
 };
 
+// Forcer le rendu dynamique pour éviter les erreurs Clerk lors du build
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{

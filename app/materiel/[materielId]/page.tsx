@@ -215,6 +215,24 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
             </Card>
           </div>
 
+          {/* Informations géographiques */}
+          <Card className="mb-6">
+            <Descriptions title="Localisation" column={{ xs: 1, sm: 2, md: 2, lg: 4 }} bordered size="small">
+              <Descriptions.Item label="Région">
+                {(materielPdf as any).region?.nom || "—"}
+              </Descriptions.Item>
+              <Descriptions.Item label="District">
+                {(materielPdf as any).district?.nom || "—"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Commune">
+                {(materielPdf as any).commune?.nom || "—"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Centre de vote">
+                {(materielPdf as any).centreVote?.nom || "—"}
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
+
           {/* Liste des matériels */}
           {materielPdf.materiels && materielPdf.materiels.length > 0 && (
             <Card className="mb-6">
