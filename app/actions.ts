@@ -80,6 +80,17 @@ export async function createEmptyExpedition(
     nomRecepteur?: string;
     adresseRecepteur?: string;
     notes?: string;
+    // Localisations de l'émetteur
+    regionEmetteurId?: string;
+    districtEmetteurId?: string;
+    communeEmetteurId?: string;
+    centreVoteEmetteurId?: string;
+    // Localisations du récepteur
+    regionRecepteurId?: string;
+    districtRecepteurId?: string;
+    communeRecepteurId?: string;
+    centreVoteRecepteurId?: string;
+    // Localisations pour compatibilité
     regionId?: string;
     districtId?: string;
     communeId?: string;
@@ -115,9 +126,20 @@ export async function createEmptyExpedition(
         dateArrive: dateArrive,
         nomEmetteur: initialData?.nomEmetteur || null,
         adresseEmetteur: initialData?.adresseEmetteur || null,
+        // Localisations de l'émetteur
+        regionEmetteurId: initialData?.regionEmetteurId || null,
+        districtEmetteurId: initialData?.districtEmetteurId || null,
+        communeEmetteurId: initialData?.communeEmetteurId || null,
+        centreVoteEmetteurId: initialData?.centreVoteEmetteurId || null,
         nomRecepteur: initialData?.nomRecepteur || null,
         adresseRecepteur: initialData?.adresseRecepteur || null,
+        // Localisations du récepteur
+        regionRecepteurId: initialData?.regionRecepteurId || null,
+        districtRecepteurId: initialData?.districtRecepteurId || null,
+        communeRecepteurId: initialData?.communeRecepteurId || null,
+        centreVoteRecepteurId: initialData?.centreVoteRecepteurId || null,
         notes: initialData?.notes || null,
+        // Localisations pour compatibilité
         regionId: initialData?.regionId || null,
         districtId: initialData?.districtId || null,
         communeId: initialData?.communeId || null,
@@ -128,10 +150,21 @@ export async function createEmptyExpedition(
       include: {
         materiels: true,
         user: true,
+        // Localisations pour compatibilité
         region: true,
         district: true,
         commune: true,
-        centreVote: true
+        centreVote: true,
+        // Localisations de l'émetteur
+        regionEmetteur: true,
+        districtEmetteur: true,
+        communeEmetteur: true,
+        centreVoteEmetteur: true,
+        // Localisations du récepteur
+        regionRecepteur: true,
+        districtRecepteur: true,
+        communeRecepteur: true,
+        centreVoteRecepteur: true
       }
     });
 
@@ -241,10 +274,21 @@ export async function getExpeditionById(expeditionId: string): Promise<Expeditio
           }
         },
         user: true,
+        // Localisations pour compatibilité
         region: true,
         district: true,
         commune: true,
         centreVote: true,
+        // Localisations de l'émetteur
+        regionEmetteur: true,
+        districtEmetteur: true,
+        communeEmetteur: true,
+        centreVoteEmetteur: true,
+        // Localisations du récepteur
+        regionRecepteur: true,
+        districtRecepteur: true,
+        communeRecepteur: true,
+        centreVoteRecepteur: true,
         mouvements: {
           orderBy: { date: 'desc' },
           include: { user: true }
@@ -327,11 +371,22 @@ export async function updateExpedition(
         dateDepart: dateDepart,
         nomEmetteur: expeditionData.nomEmetteur,
         adresseEmetteur: expeditionData.adresseEmetteur,
+        // Localisations de l'émetteur
+        regionEmetteurId: expeditionData.regionEmetteurId || null,
+        districtEmetteurId: expeditionData.districtEmetteurId || null,
+        communeEmetteurId: expeditionData.communeEmetteurId || null,
+        centreVoteEmetteurId: expeditionData.centreVoteEmetteurId || null,
         lieuArrive: expeditionData.lieuArrive,
         dateArrive: dateArrive,
         nomRecepteur: expeditionData.nomRecepteur,
         adresseRecepteur: expeditionData.adresseRecepteur,
+        // Localisations du récepteur
+        regionRecepteurId: expeditionData.regionRecepteurId || null,
+        districtRecepteurId: expeditionData.districtRecepteurId || null,
+        communeRecepteurId: expeditionData.communeRecepteurId || null,
+        centreVoteRecepteurId: expeditionData.centreVoteRecepteurId || null,
         status: statusEnum,
+        // Localisations pour compatibilité
         regionId: expeditionData.regionId || null,
         districtId: expeditionData.districtId || null,
         communeId: expeditionData.communeId || null,
@@ -343,10 +398,21 @@ export async function updateExpedition(
           include: { typeMateriel: true }
         },
         user: true,
+        // Localisations pour compatibilité
         region: true,
         district: true,
         commune: true,
-        centreVote: true
+        centreVote: true,
+        // Localisations de l'émetteur
+        regionEmetteur: true,
+        districtEmetteur: true,
+        communeEmetteur: true,
+        centreVoteEmetteur: true,
+        // Localisations du récepteur
+        regionRecepteur: true,
+        districtRecepteur: true,
+        communeRecepteur: true,
+        centreVoteRecepteur: true
       }
     });
 
@@ -486,6 +552,17 @@ export async function createEmptyMaterielPdf(
     nomRecepteur?: string;
     adresseRecepteur?: string;
     notes?: string;
+    // Localisations de l'émetteur
+    regionEmetteurId?: string;
+    districtEmetteurId?: string;
+    communeEmetteurId?: string;
+    centreVoteEmetteurId?: string;
+    // Localisations du récepteur
+    regionRecepteurId?: string;
+    districtRecepteurId?: string;
+    communeRecepteurId?: string;
+    centreVoteRecepteurId?: string;
+    // Localisations pour compatibilité
     regionId?: string;
     districtId?: string;
     communeId?: string;
@@ -540,6 +617,7 @@ export async function getMaterielPdfById(id: string) {
     adresse_recepteur: expedition.adresseRecepteur,
     lieu_depart: expedition.lieuDepart,
     lieu_arrive: expedition.lieuArrive,
+    // Les nouvelles localisations sont déjà incluses dans l'objet expedition
     materiels: expedition.materiels,
     Materiel: expedition.materiels
   };
@@ -555,11 +633,22 @@ export async function updatedMaterielPdf(materielPdf: any) {
     dateDepart: materielPdf.dateDepart || materielPdf.date_depart || undefined,
     nomEmetteur: materielPdf.nomEmetteur || materielPdf.nom_emetteur || "",
     adresseEmetteur: materielPdf.adresseEmetteur || materielPdf.adresse_emetteur || "",
+    // Localisations de l'émetteur
+    regionEmetteurId: materielPdf.regionEmetteurId || (materielPdf as any).regionEmetteur?.id,
+    districtEmetteurId: materielPdf.districtEmetteurId || (materielPdf as any).districtEmetteur?.id,
+    communeEmetteurId: materielPdf.communeEmetteurId || (materielPdf as any).communeEmetteur?.id,
+    centreVoteEmetteurId: materielPdf.centreVoteEmetteurId || (materielPdf as any).centreVoteEmetteur?.id,
     lieuArrive: materielPdf.lieuArrive || materielPdf.lieu_arrive || "",
     dateArrive: materielPdf.dateArrive || materielPdf.date_arrive || undefined,
     nomRecepteur: materielPdf.nomRecepteur || materielPdf.nom_recepteur || "",
     adresseRecepteur: materielPdf.adresseRecepteur || materielPdf.adresse_recepteur || "",
+    // Localisations du récepteur
+    regionRecepteurId: materielPdf.regionRecepteurId || (materielPdf as any).regionRecepteur?.id,
+    districtRecepteurId: materielPdf.districtRecepteurId || (materielPdf as any).districtRecepteur?.id,
+    communeRecepteurId: materielPdf.communeRecepteurId || (materielPdf as any).communeRecepteur?.id,
+    centreVoteRecepteurId: materielPdf.centreVoteRecepteurId || (materielPdf as any).centreVoteRecepteur?.id,
     status: convertStatusToEnum(materielPdf.status),
+    // Localisations pour compatibilité
     regionId: materielPdf.regionId,
     districtId: materielPdf.districtId,
     communeId: materielPdf.communeId,

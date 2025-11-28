@@ -23,15 +23,22 @@ export default function CreateMaterielPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [form] = Form.useForm()
   
-  // États pour les sélecteurs en cascade
+  // États pour les sélecteurs en cascade - Émetteur
   const [regions, setRegions] = useState<Region[]>([])
-  const [districts, setDistricts] = useState<District[]>([])
-  const [communes, setCommunes] = useState<Commune[]>([])
-  const [centresVote, setCentresVote] = useState<CentreVote[]>([])
+  const [districtsEmetteur, setDistrictsEmetteur] = useState<District[]>([])
+  const [communesEmetteur, setCommunesEmetteur] = useState<Commune[]>([])
+  const [centresVoteEmetteur, setCentresVoteEmetteur] = useState<CentreVote[]>([])
+  const [selectedRegionEmetteurId, setSelectedRegionEmetteurId] = useState<string | undefined>()
+  const [selectedDistrictEmetteurId, setSelectedDistrictEmetteurId] = useState<string | undefined>()
+  const [selectedCommuneEmetteurId, setSelectedCommuneEmetteurId] = useState<string | undefined>()
   
-  const [selectedRegionId, setSelectedRegionId] = useState<string | undefined>()
-  const [selectedDistrictId, setSelectedDistrictId] = useState<string | undefined>()
-  const [selectedCommuneId, setSelectedCommuneId] = useState<string | undefined>()
+  // États pour les sélecteurs en cascade - Récepteur
+  const [districtsRecepteur, setDistrictsRecepteur] = useState<District[]>([])
+  const [communesRecepteur, setCommunesRecepteur] = useState<Commune[]>([])
+  const [centresVoteRecepteur, setCentresVoteRecepteur] = useState<CentreVote[]>([])
+  const [selectedRegionRecepteurId, setSelectedRegionRecepteurId] = useState<string | undefined>()
+  const [selectedDistrictRecepteurId, setSelectedDistrictRecepteurId] = useState<string | undefined>()
+  const [selectedCommuneRecepteurId, setSelectedCommuneRecepteurId] = useState<string | undefined>()
 
   const onFinish = async (values: any) => {
     if (!email) {
@@ -48,15 +55,25 @@ export default function CreateMaterielPage() {
         // Ant Design DatePicker retourne un dayjs object, convertir en ISO string
         initialData.dateDepart = values.dateDepart.format('YYYY-MM-DD')
       }
+      if (values.dateArrive) {
+        // Ant Design DatePicker retourne un dayjs object, convertir en ISO string
+        initialData.dateArrive = values.dateArrive.format('YYYY-MM-DD')
+      }
       if (values.nomEmetteur) initialData.nomEmetteur = values.nomEmetteur
       if (values.adresseEmetteur) initialData.adresseEmetteur = values.adresseEmetteur
+      // Localisations de l'émetteur
+      if (values.regionEmetteurId) initialData.regionEmetteurId = values.regionEmetteurId
+      if (values.districtEmetteurId) initialData.districtEmetteurId = values.districtEmetteurId
+      if (values.communeEmetteurId) initialData.communeEmetteurId = values.communeEmetteurId
+      if (values.centreVoteEmetteurId) initialData.centreVoteEmetteurId = values.centreVoteEmetteurId
       if (values.nomRecepteur) initialData.nomRecepteur = values.nomRecepteur
       if (values.adresseRecepteur) initialData.adresseRecepteur = values.adresseRecepteur
+      // Localisations du récepteur
+      if (values.regionRecepteurId) initialData.regionRecepteurId = values.regionRecepteurId
+      if (values.districtRecepteurId) initialData.districtRecepteurId = values.districtRecepteurId
+      if (values.communeRecepteurId) initialData.communeRecepteurId = values.communeRecepteurId
+      if (values.centreVoteRecepteurId) initialData.centreVoteRecepteurId = values.centreVoteRecepteurId
       if (values.notes) initialData.notes = values.notes
-      if (values.regionId) initialData.regionId = values.regionId
-      if (values.districtId) initialData.districtId = values.districtId
-      if (values.communeId) initialData.communeId = values.communeId
-      if (values.centreVoteId) initialData.centreVoteId = values.centreVoteId
       
       // Créer l'expédition avec toutes les données en une seule fois
       const expedition = await createEmptyMaterielPdf(
@@ -85,45 +102,83 @@ export default function CreateMaterielPage() {
     loadRegions()
   }, [])
 
-  // Charger les districts quand une région est sélectionnée
-  const handleRegionChange = async (regionId: string) => {
-    setSelectedRegionId(regionId)
-    setSelectedDistrictId(undefined)
-    setSelectedCommuneId(undefined)
-    setDistricts([])
-    setCommunes([])
-    setCentresVote([])
-    form.setFieldsValue({ districtId: undefined, communeId: undefined, centreVoteId: undefined })
+  // Handlers pour l'émetteur
+  const handleRegionEmetteurChange = async (regionId: string) => {
+    setSelectedRegionEmetteurId(regionId)
+    setSelectedDistrictEmetteurId(undefined)
+    setSelectedCommuneEmetteurId(undefined)
+    setDistrictsEmetteur([])
+    setCommunesEmetteur([])
+    setCentresVoteEmetteur([])
+    form.setFieldsValue({ districtEmetteurId: undefined, communeEmetteurId: undefined, centreVoteEmetteurId: undefined })
     
     if (regionId) {
       const data = await getDistrictsByRegion(regionId)
-      setDistricts(data as District[])
+      setDistrictsEmetteur(data as District[])
     }
   }
 
-  // Charger les communes quand un district est sélectionné
-  const handleDistrictChange = async (districtId: string) => {
-    setSelectedDistrictId(districtId)
-    setSelectedCommuneId(undefined)
-    setCommunes([])
-    setCentresVote([])
-    form.setFieldsValue({ communeId: undefined, centreVoteId: undefined })
+  const handleDistrictEmetteurChange = async (districtId: string) => {
+    setSelectedDistrictEmetteurId(districtId)
+    setSelectedCommuneEmetteurId(undefined)
+    setCommunesEmetteur([])
+    setCentresVoteEmetteur([])
+    form.setFieldsValue({ communeEmetteurId: undefined, centreVoteEmetteurId: undefined })
     
     if (districtId) {
       const data = await getCommunesByDistrict(districtId)
-      setCommunes(data as Commune[])
+      setCommunesEmetteur(data as Commune[])
     }
   }
 
-  // Charger les centres de vote quand une commune est sélectionnée
-  const handleCommuneChange = async (communeId: string) => {
-    setSelectedCommuneId(communeId)
-    setCentresVote([])
-    form.setFieldsValue({ centreVoteId: undefined })
+  const handleCommuneEmetteurChange = async (communeId: string) => {
+    setSelectedCommuneEmetteurId(communeId)
+    setCentresVoteEmetteur([])
+    form.setFieldsValue({ centreVoteEmetteurId: undefined })
     
     if (communeId) {
       const data = await getCentresVoteByCommune(communeId)
-      setCentresVote(data as CentreVote[])
+      setCentresVoteEmetteur(data as CentreVote[])
+    }
+  }
+
+  // Handlers pour le récepteur
+  const handleRegionRecepteurChange = async (regionId: string) => {
+    setSelectedRegionRecepteurId(regionId)
+    setSelectedDistrictRecepteurId(undefined)
+    setSelectedCommuneRecepteurId(undefined)
+    setDistrictsRecepteur([])
+    setCommunesRecepteur([])
+    setCentresVoteRecepteur([])
+    form.setFieldsValue({ districtRecepteurId: undefined, communeRecepteurId: undefined, centreVoteRecepteurId: undefined })
+    
+    if (regionId) {
+      const data = await getDistrictsByRegion(regionId)
+      setDistrictsRecepteur(data as District[])
+    }
+  }
+
+  const handleDistrictRecepteurChange = async (districtId: string) => {
+    setSelectedDistrictRecepteurId(districtId)
+    setSelectedCommuneRecepteurId(undefined)
+    setCommunesRecepteur([])
+    setCentresVoteRecepteur([])
+    form.setFieldsValue({ communeRecepteurId: undefined, centreVoteRecepteurId: undefined })
+    
+    if (districtId) {
+      const data = await getCommunesByDistrict(districtId)
+      setCommunesRecepteur(data as Commune[])
+    }
+  }
+
+  const handleCommuneRecepteurChange = async (communeId: string) => {
+    setSelectedCommuneRecepteurId(communeId)
+    setCentresVoteRecepteur([])
+    form.setFieldsValue({ centreVoteRecepteurId: undefined })
+    
+    if (communeId) {
+      const data = await getCentresVoteByCommune(communeId)
+      setCentresVoteRecepteur(data as CentreVote[])
     }
   }
 
@@ -230,6 +285,21 @@ export default function CreateMaterielPage() {
                 </Col>
                 <Col xs={24} md={12}>
                   <Form.Item
+                    name='dateArrive'
+                    label={<span className="font-medium text-gray-700">Date d'arrivée</span>}
+                  >
+                    <DatePicker 
+                      className="w-full"
+                      format="DD/MM/YYYY"
+                      placeholder="Sélectionner la date"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col xs={24}>
+                  <Form.Item
                     name='nomRecepteur'
                     label={<span className="font-medium text-gray-700">Nom du récepteur</span>}
                   >
@@ -260,19 +330,19 @@ export default function CreateMaterielPage() {
 
               <div className="border-t border-gray-200 my-6"></div>
               
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Localisation géographique</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Localisation de l'émetteur</h3>
               
               <Row gutter={16}>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    name='regionId'
+                    name='regionEmetteurId'
                     label={<span className="font-medium text-gray-700">Région</span>}
                   >
                     <Select
                       placeholder="Sélectionner une région"
                       showSearch
                       allowClear
-                      onChange={handleRegionChange}
+                      onChange={handleRegionEmetteurChange}
                       filterOption={(input, option) =>
                         (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                       }
@@ -285,19 +355,19 @@ export default function CreateMaterielPage() {
                 </Col>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    name='districtId'
+                    name='districtEmetteurId'
                     label={<span className="font-medium text-gray-700">District</span>}
                   >
                     <Select
                       placeholder="Sélectionner un district"
                       showSearch
                       allowClear
-                      disabled={!selectedRegionId}
-                      onChange={handleDistrictChange}
+                      disabled={!selectedRegionEmetteurId}
+                      onChange={handleDistrictEmetteurChange}
                       filterOption={(input, option) =>
                         (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                       }
-                      options={districts.map(district => ({
+                      options={districtsEmetteur.map(district => ({
                         value: district.id,
                         label: district.nom
                       }))}
@@ -309,19 +379,19 @@ export default function CreateMaterielPage() {
               <Row gutter={16}>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    name='communeId'
+                    name='communeEmetteurId'
                     label={<span className="font-medium text-gray-700">Commune</span>}
                   >
                     <Select
                       placeholder="Sélectionner une commune"
                       showSearch
                       allowClear
-                      disabled={!selectedDistrictId}
-                      onChange={handleCommuneChange}
+                      disabled={!selectedDistrictEmetteurId}
+                      onChange={handleCommuneEmetteurChange}
                       filterOption={(input, option) =>
                         (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                       }
-                      options={communes.map(commune => ({
+                      options={communesEmetteur.map(commune => ({
                         value: commune.id,
                         label: commune.nom
                       }))}
@@ -330,18 +400,110 @@ export default function CreateMaterielPage() {
                 </Col>
                 <Col xs={24} md={12}>
                   <Form.Item
-                    name='centreVoteId'
+                    name='centreVoteEmetteurId'
                     label={<span className="font-medium text-gray-700">Centre de vote</span>}
                   >
                     <Select
                       placeholder="Sélectionner un centre de vote"
                       showSearch
                       allowClear
-                      disabled={!selectedCommuneId}
+                      disabled={!selectedCommuneEmetteurId}
                       filterOption={(input, option) =>
                         (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                       }
-                      options={centresVote.map(centre => ({
+                      options={centresVoteEmetteur.map(centre => ({
+                        value: centre.id,
+                        label: centre.nom
+                      }))}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <div className="border-t border-gray-200 my-6"></div>
+              
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Localisation du récepteur</h3>
+              
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name='regionRecepteurId'
+                    label={<span className="font-medium text-gray-700">Région</span>}
+                  >
+                    <Select
+                      placeholder="Sélectionner une région"
+                      showSearch
+                      allowClear
+                      onChange={handleRegionRecepteurChange}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      options={regions.map(region => ({
+                        value: region.id,
+                        label: region.nom
+                      }))}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name='districtRecepteurId'
+                    label={<span className="font-medium text-gray-700">District</span>}
+                  >
+                    <Select
+                      placeholder="Sélectionner un district"
+                      showSearch
+                      allowClear
+                      disabled={!selectedRegionRecepteurId}
+                      onChange={handleDistrictRecepteurChange}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      options={districtsRecepteur.map(district => ({
+                        value: district.id,
+                        label: district.nom
+                      }))}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name='communeRecepteurId'
+                    label={<span className="font-medium text-gray-700">Commune</span>}
+                  >
+                    <Select
+                      placeholder="Sélectionner une commune"
+                      showSearch
+                      allowClear
+                      disabled={!selectedDistrictRecepteurId}
+                      onChange={handleCommuneRecepteurChange}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      options={communesRecepteur.map(commune => ({
+                        value: commune.id,
+                        label: commune.nom
+                      }))}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Form.Item
+                    name='centreVoteRecepteurId'
+                    label={<span className="font-medium text-gray-700">Centre de vote</span>}
+                  >
+                    <Select
+                      placeholder="Sélectionner un centre de vote"
+                      showSearch
+                      allowClear
+                      disabled={!selectedCommuneRecepteurId}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                      options={centresVoteRecepteur.map(centre => ({
                         value: centre.id,
                         label: centre.nom
                       }))}

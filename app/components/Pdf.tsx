@@ -104,7 +104,9 @@ const Pdf: React.FC<PdfProps> = (
 
                         <div className='text-left md:text-right'>
                             <div className='inline-block px-3 py-1 bg-gray-100 rounded-md mb-2'>
-                                <span className='text-sm font-semibold text-gray-700'>MATRI-{materielPdf.id}</span>
+                                <span className='text-sm font-semibold text-gray-700'>
+                                    {materielPdf.numero || `EXP-${materielPdf.id.substring(0, 8)}`}
+                                </span>
                             </div>
                             <div className='text-sm text-gray-600 space-y-1'>
                                 <p>
@@ -124,12 +126,32 @@ const Pdf: React.FC<PdfProps> = (
                         <div className='bg-gray-50 p-4 rounded-lg border border-gray-200'>
                             <div className='text-xs uppercase font-semibold text-gray-500 mb-3 tracking-wider'>Émetteur</div>
                             <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nomEmetteur || materielPdf.nom_emetteur || "—"}</p>
-                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresseEmetteur || materielPdf.adresse_emetteur || "—"}</p>
+                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap mb-3'>{materielPdf.adresseEmetteur || materielPdf.adresse_emetteur || "—"}</p>
+                            {/* Localisation de l'émetteur */}
+                            <div className='mt-3 pt-3 border-t border-gray-300'>
+                                <p className='text-xs uppercase font-semibold text-gray-500 mb-2'>Localisation</p>
+                                <div className='text-xs text-gray-600 space-y-1'>
+                                    <p><strong>Région:</strong> {(materielPdf as any).regionEmetteur?.nom || (materielPdf as any).region?.nom || "—"}</p>
+                                    <p><strong>District:</strong> {(materielPdf as any).districtEmetteur?.nom || (materielPdf as any).district?.nom || "—"}</p>
+                                    <p><strong>Commune:</strong> {(materielPdf as any).communeEmetteur?.nom || (materielPdf as any).commune?.nom || "—"}</p>
+                                    <p><strong>Centre de vote:</strong> {(materielPdf as any).centreVoteEmetteur?.nom || (materielPdf as any).centreVote?.nom || "—"}</p>
+                                </div>
+                            </div>
                         </div>
                         <div className='bg-gray-50 p-4 rounded-lg border border-gray-200'>
                             <div className='text-xs uppercase font-semibold text-gray-500 mb-3 tracking-wider'>Récepteur</div>
                             <p className='text-base font-bold text-gray-800 mb-2'>{materielPdf.nomRecepteur || materielPdf.nom_recepteur || "—"}</p>
-                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap'>{materielPdf.adresseRecepteur || materielPdf.adresse_recepteur || "—"}</p>
+                            <p className='text-sm text-gray-600 leading-relaxed whitespace-pre-wrap mb-3'>{materielPdf.adresseRecepteur || materielPdf.adresse_recepteur || "—"}</p>
+                            {/* Localisation du récepteur */}
+                            <div className='mt-3 pt-3 border-t border-gray-300'>
+                                <p className='text-xs uppercase font-semibold text-gray-500 mb-2'>Localisation</p>
+                                <div className='text-xs text-gray-600 space-y-1'>
+                                    <p><strong>Région:</strong> {(materielPdf as any).regionRecepteur?.nom || "—"}</p>
+                                    <p><strong>District:</strong> {(materielPdf as any).districtRecepteur?.nom || "—"}</p>
+                                    <p><strong>Commune:</strong> {(materielPdf as any).communeRecepteur?.nom || "—"}</p>
+                                    <p><strong>Centre de vote:</strong> {(materielPdf as any).centreVoteRecepteur?.nom || "—"}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

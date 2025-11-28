@@ -10,33 +10,36 @@ interface Props {
 }
 const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
     const [regions, setRegions] = useState<Region[]>([])
-    const [districts, setDistricts] = useState<District[]>([])
-    const [communes, setCommunes] = useState<Commune[]>([])
-    const [centresVote, setCentresVote] = useState<CentreVote[]>([])
     
-    const [selectedRegionId, setSelectedRegionId] = useState<string | undefined>(
-        (materielPdf as any)?.regionId || (materielPdf as any)?.region?.id
-    )
-    const [selectedDistrictId, setSelectedDistrictId] = useState<string | undefined>(
-        (materielPdf as any)?.districtId || (materielPdf as any)?.district?.id
-    )
-    const [selectedCommuneId, setSelectedCommuneId] = useState<string | undefined>(
-        (materielPdf as any)?.communeId || (materielPdf as any)?.commune?.id
-    )
+    // États pour les localisations de l'émetteur
+    const [districtsEmetteur, setDistrictsEmetteur] = useState<District[]>([])
+    const [communesEmetteur, setCommunesEmetteur] = useState<Commune[]>([])
+    const [centresVoteEmetteur, setCentresVoteEmetteur] = useState<CentreVote[]>([])
+    const [selectedRegionEmetteurId, setSelectedRegionEmetteurId] = useState<string | undefined>()
+    const [selectedDistrictEmetteurId, setSelectedDistrictEmetteurId] = useState<string | undefined>()
+    const [selectedCommuneEmetteurId, setSelectedCommuneEmetteurId] = useState<string | undefined>()
+    
+    // États pour les localisations du récepteur
+    const [districtsRecepteur, setDistrictsRecepteur] = useState<District[]>([])
+    const [communesRecepteur, setCommunesRecepteur] = useState<Commune[]>([])
+    const [centresVoteRecepteur, setCentresVoteRecepteur] = useState<CentreVote[]>([])
+    const [selectedRegionRecepteurId, setSelectedRegionRecepteurId] = useState<string | undefined>()
+    const [selectedDistrictRecepteurId, setSelectedDistrictRecepteurId] = useState<string | undefined>()
+    const [selectedCommuneRecepteurId, setSelectedCommuneRecepteurId] = useState<string | undefined>()
 
     const loadDistricts = async (regionId: string) => {
         const data = await getDistrictsByRegion(regionId)
-        setDistricts(data as District[])
+        return data as District[]
     }
 
     const loadCommunes = async (districtId: string) => {
         const data = await getCommunesByDistrict(districtId)
-        setCommunes(data as Commune[])
+        return data as Commune[]
     }
 
     const loadCentresVote = async (communeId: string) => {
         const data = await getCentresVoteByCommune(communeId)
-        setCentresVote(data as CentreVote[])
+        return data as CentreVote[]
     }
 
     // Charger les régions au montage
@@ -50,83 +53,161 @@ const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
 
     // Initialiser les sélections depuis materielPdf
     useEffect(() => {
-        const regionId = (materielPdf as any)?.regionId || (materielPdf as any)?.region?.id
-        const districtId = (materielPdf as any)?.districtId || (materielPdf as any)?.district?.id
-        const communeId = (materielPdf as any)?.communeId || (materielPdf as any)?.commune?.id
+        // Localisations de l'émetteur
+        const regionEmetteurId = (materielPdf as any)?.regionEmetteurId || (materielPdf as any)?.regionEmetteur?.id
+        const districtEmetteurId = (materielPdf as any)?.districtEmetteurId || (materielPdf as any)?.districtEmetteur?.id
+        const communeEmetteurId = (materielPdf as any)?.communeEmetteurId || (materielPdf as any)?.communeEmetteur?.id
         
-        if (regionId) {
-            setSelectedRegionId(regionId)
-            loadDistricts(regionId)
+        if (regionEmetteurId) {
+            setSelectedRegionEmetteurId(regionEmetteurId)
+            loadDistricts(regionEmetteurId).then(setDistrictsEmetteur)
         }
-        if (districtId) {
-            setSelectedDistrictId(districtId)
-            loadCommunes(districtId)
+        if (districtEmetteurId) {
+            setSelectedDistrictEmetteurId(districtEmetteurId)
+            loadCommunes(districtEmetteurId).then(setCommunesEmetteur)
         }
-        if (communeId) {
-            setSelectedCommuneId(communeId)
-            loadCentresVote(communeId)
+        if (communeEmetteurId) {
+            setSelectedCommuneEmetteurId(communeEmetteurId)
+            loadCentresVote(communeEmetteurId).then(setCentresVoteEmetteur)
+        }
+        
+        // Localisations du récepteur
+        const regionRecepteurId = (materielPdf as any)?.regionRecepteurId || (materielPdf as any)?.regionRecepteur?.id
+        const districtRecepteurId = (materielPdf as any)?.districtRecepteurId || (materielPdf as any)?.districtRecepteur?.id
+        const communeRecepteurId = (materielPdf as any)?.communeRecepteurId || (materielPdf as any)?.communeRecepteur?.id
+        
+        if (regionRecepteurId) {
+            setSelectedRegionRecepteurId(regionRecepteurId)
+            loadDistricts(regionRecepteurId).then(setDistrictsRecepteur)
+        }
+        if (districtRecepteurId) {
+            setSelectedDistrictRecepteurId(districtRecepteurId)
+            loadCommunes(districtRecepteurId).then(setCommunesRecepteur)
+        }
+        if (communeRecepteurId) {
+            setSelectedCommuneRecepteurId(communeRecepteurId)
+            loadCentresVote(communeRecepteurId).then(setCentresVoteRecepteur)
         }
     }, [materielPdf])
 
-    const handleRegionChange = async (regionId: string) => {
-        setSelectedRegionId(regionId)
-        setSelectedDistrictId(undefined)
-        setSelectedCommuneId(undefined)
-        setDistricts([])
-        setCommunes([])
-        setCentresVote([])
+    // Handlers pour l'émetteur
+    const handleRegionEmetteurChange = async (regionId: string) => {
+        setSelectedRegionEmetteurId(regionId)
+        setSelectedDistrictEmetteurId(undefined)
+        setSelectedCommuneEmetteurId(undefined)
+        setDistrictsEmetteur([])
+        setCommunesEmetteur([])
+        setCentresVoteEmetteur([])
         setMaterielPdf({
             ...materielPdf,
-            regionId: regionId,
-            districtId: undefined,
-            communeId: undefined,
-            centreVoteId: undefined
+            regionEmetteurId: regionId,
+            districtEmetteurId: undefined,
+            communeEmetteurId: undefined,
+            centreVoteEmetteurId: undefined
         } as any)
         if (regionId) {
-            await loadDistricts(regionId)
+            const districts = await loadDistricts(regionId)
+            setDistrictsEmetteur(districts)
         }
     }
 
-    const handleDistrictChange = async (districtId: string) => {
-        setSelectedDistrictId(districtId)
-        setSelectedCommuneId(undefined)
-        setCommunes([])
-        setCentresVote([])
+    const handleDistrictEmetteurChange = async (districtId: string) => {
+        setSelectedDistrictEmetteurId(districtId)
+        setSelectedCommuneEmetteurId(undefined)
+        setCommunesEmetteur([])
+        setCentresVoteEmetteur([])
         setMaterielPdf({
             ...materielPdf,
-            districtId: districtId,
-            communeId: undefined,
-            centreVoteId: undefined
+            districtEmetteurId: districtId,
+            communeEmetteurId: undefined,
+            centreVoteEmetteurId: undefined
         } as any)
         if (districtId) {
-            await loadCommunes(districtId)
+            const communes = await loadCommunes(districtId)
+            setCommunesEmetteur(communes)
         }
     }
 
-    const handleCommuneChange = async (communeId: string) => {
-        setSelectedCommuneId(communeId)
-        setCentresVote([])
+    const handleCommuneEmetteurChange = async (communeId: string) => {
+        setSelectedCommuneEmetteurId(communeId)
+        setCentresVoteEmetteur([])
         setMaterielPdf({
             ...materielPdf,
-            communeId: communeId,
-            centreVoteId: undefined
+            communeEmetteurId: communeId,
+            centreVoteEmetteurId: undefined
         } as any)
         if (communeId) {
-            await loadCentresVote(communeId)
+            const centresVote = await loadCentresVote(communeId)
+            setCentresVoteEmetteur(centresVote)
         }
     }
 
-    const handleCentreVoteChange = (centreVoteId: string) => {
+    const handleCentreVoteEmetteurChange = (centreVoteId: string) => {
         setMaterielPdf({
             ...materielPdf,
-            centreVoteId: centreVoteId
+            centreVoteEmetteurId: centreVoteId
         } as any)
     }
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | 
-        HTMLTextAreaElement> , field : string) => {
-            setMaterielPdf({...materielPdf , [field]: e.target.value})
+    // Handlers pour le récepteur
+    const handleRegionRecepteurChange = async (regionId: string) => {
+        setSelectedRegionRecepteurId(regionId)
+        setSelectedDistrictRecepteurId(undefined)
+        setSelectedCommuneRecepteurId(undefined)
+        setDistrictsRecepteur([])
+        setCommunesRecepteur([])
+        setCentresVoteRecepteur([])
+        setMaterielPdf({
+            ...materielPdf,
+            regionRecepteurId: regionId,
+            districtRecepteurId: undefined,
+            communeRecepteurId: undefined,
+            centreVoteRecepteurId: undefined
+        } as any)
+        if (regionId) {
+            const districts = await loadDistricts(regionId)
+            setDistrictsRecepteur(districts)
         }
+    }
+
+    const handleDistrictRecepteurChange = async (districtId: string) => {
+        setSelectedDistrictRecepteurId(districtId)
+        setSelectedCommuneRecepteurId(undefined)
+        setCommunesRecepteur([])
+        setCentresVoteRecepteur([])
+        setMaterielPdf({
+            ...materielPdf,
+            districtRecepteurId: districtId,
+            communeRecepteurId: undefined,
+            centreVoteRecepteurId: undefined
+        } as any)
+        if (districtId) {
+            const communes = await loadCommunes(districtId)
+            setCommunesRecepteur(communes)
+        }
+    }
+
+    const handleCommuneRecepteurChange = async (communeId: string) => {
+        setSelectedCommuneRecepteurId(communeId)
+        setCentresVoteRecepteur([])
+        setMaterielPdf({
+            ...materielPdf,
+            communeRecepteurId: communeId,
+            centreVoteRecepteurId: undefined
+        } as any)
+        if (communeId) {
+            const centresVote = await loadCentresVote(communeId)
+            setCentresVoteRecepteur(centresVote)
+        }
+    }
+
+    const handleCentreVoteRecepteurChange = (centreVoteId: string) => {
+        setMaterielPdf({
+            ...materielPdf,
+            centreVoteRecepteurId: centreVoteId
+        } as any)
+    }
+
     return (
         <div className='flex flex-col h-fit'>
             <Form layout='vertical' size="large">
@@ -154,6 +235,61 @@ const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
                             }}
                         />
                     </Form.Item>
+
+                    {/* Localisation de l'émetteur */}
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h3 className='text-md font-semibold mb-3 text-gray-700'>Localisation de l'émetteur</h3>
+                        <Form.Item label={<span className="font-semibold">Région</span>}>
+                            <Select
+                                placeholder="Sélectionner une région"
+                                value={selectedRegionEmetteurId}
+                                onChange={handleRegionEmetteurChange}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={regions.map((r: any) => ({ value: r.id, label: r.nom }))}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label={<span className="font-semibold">District</span>}>
+                            <Select
+                                placeholder="Sélectionner un district"
+                                value={selectedDistrictEmetteurId}
+                                onChange={handleDistrictEmetteurChange}
+                                disabled={!selectedRegionEmetteurId}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={districtsEmetteur.map((d: any) => ({ value: d.id, label: d.nom }))}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label={<span className="font-semibold">Commune</span>}>
+                            <Select
+                                placeholder="Sélectionner une commune"
+                                value={selectedCommuneEmetteurId}
+                                onChange={handleCommuneEmetteurChange}
+                                disabled={!selectedDistrictEmetteurId}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={communesEmetteur.map((c: any) => ({ value: c.id, label: c.nom }))}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label={<span className="font-semibold">Centre de vote</span>}>
+                            <Select
+                                placeholder="Sélectionner un centre de vote"
+                                value={(materielPdf as any)?.centreVoteEmetteurId || (materielPdf as any)?.centreVoteEmetteur?.id}
+                                onChange={handleCentreVoteEmetteurChange}
+                                disabled={!selectedCommuneEmetteurId}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={centresVoteEmetteur.map((cv: any) => ({ value: cv.id, label: cv.nom }))}
+                            />
+                        </Form.Item>
+                    </div>
                 </div>
 
                 <div className="mb-6">
@@ -180,60 +316,61 @@ const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
                             }}
                         />
                     </Form.Item>
-                </div>
 
-                <div className="mb-6">
-                    <h2 className='text-lg font-bold mb-4 pb-2 border-b'>Localisation</h2>
-                    <Form.Item label={<span className="font-semibold">Région</span>}>
-                        <Select
-                            placeholder="Sélectionner une région"
-                            value={selectedRegionId}
-                            onChange={handleRegionChange}
-                            allowClear
-                            showSearch
-                            optionFilterProp="label"
-                            options={regions.map((r: any) => ({ value: r.id, label: r.nom }))}
-                        />
-                    </Form.Item>
+                    {/* Localisation du récepteur */}
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h3 className='text-md font-semibold mb-3 text-gray-700'>Localisation du récepteur</h3>
+                        <Form.Item label={<span className="font-semibold">Région</span>}>
+                            <Select
+                                placeholder="Sélectionner une région"
+                                value={selectedRegionRecepteurId}
+                                onChange={handleRegionRecepteurChange}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={regions.map((r: any) => ({ value: r.id, label: r.nom }))}
+                            />
+                        </Form.Item>
 
-                    <Form.Item label={<span className="font-semibold">District</span>}>
-                        <Select
-                            placeholder="Sélectionner un district"
-                            value={selectedDistrictId}
-                            onChange={handleDistrictChange}
-                            disabled={!selectedRegionId}
-                            allowClear
-                            showSearch
-                            optionFilterProp="label"
-                            options={districts.map((d: any) => ({ value: d.id, label: d.nom }))}
-                        />
-                    </Form.Item>
+                        <Form.Item label={<span className="font-semibold">District</span>}>
+                            <Select
+                                placeholder="Sélectionner un district"
+                                value={selectedDistrictRecepteurId}
+                                onChange={handleDistrictRecepteurChange}
+                                disabled={!selectedRegionRecepteurId}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={districtsRecepteur.map((d: any) => ({ value: d.id, label: d.nom }))}
+                            />
+                        </Form.Item>
 
-                    <Form.Item label={<span className="font-semibold">Commune</span>}>
-                        <Select
-                            placeholder="Sélectionner une commune"
-                            value={selectedCommuneId}
-                            onChange={handleCommuneChange}
-                            disabled={!selectedDistrictId}
-                            allowClear
-                            showSearch
-                            optionFilterProp="label"
-                            options={communes.map((c: any) => ({ value: c.id, label: c.nom }))}
-                        />
-                    </Form.Item>
+                        <Form.Item label={<span className="font-semibold">Commune</span>}>
+                            <Select
+                                placeholder="Sélectionner une commune"
+                                value={selectedCommuneRecepteurId}
+                                onChange={handleCommuneRecepteurChange}
+                                disabled={!selectedDistrictRecepteurId}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={communesRecepteur.map((c: any) => ({ value: c.id, label: c.nom }))}
+                            />
+                        </Form.Item>
 
-                    <Form.Item label={<span className="font-semibold">Centre de vote</span>}>
-                        <Select
-                            placeholder="Sélectionner un centre de vote"
-                            value={(materielPdf as any)?.centreVoteId || (materielPdf as any)?.centreVote?.id}
-                            onChange={handleCentreVoteChange}
-                            disabled={!selectedCommuneId}
-                            allowClear
-                            showSearch
-                            optionFilterProp="label"
-                            options={centresVote.map((cv: any) => ({ value: cv.id, label: cv.nom }))}
-                        />
-                    </Form.Item>
+                        <Form.Item label={<span className="font-semibold">Centre de vote</span>}>
+                            <Select
+                                placeholder="Sélectionner un centre de vote"
+                                value={(materielPdf as any)?.centreVoteRecepteurId || (materielPdf as any)?.centreVoteRecepteur?.id}
+                                onChange={handleCentreVoteRecepteurChange}
+                                disabled={!selectedCommuneRecepteurId}
+                                allowClear
+                                showSearch
+                                optionFilterProp="label"
+                                options={centresVoteRecepteur.map((cv: any) => ({ value: cv.id, label: cv.nom }))}
+                            />
+                        </Form.Item>
+                    </div>
                 </div>
 
                 <div>
@@ -284,4 +421,3 @@ const MaterielInfo : React.FC<Props>  = ({materielPdf , setMaterielPdf}) => {
 }
 
 export default MaterielInfo
-

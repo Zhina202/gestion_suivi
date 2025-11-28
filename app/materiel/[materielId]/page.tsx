@@ -138,14 +138,19 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
     )
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date | null | undefined) => {
     if (!dateString) return "—";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
-    });
+    try {
+      const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+      if (isNaN(date.getTime())) return "—";
+      return date.toLocaleDateString('fr-FR', { 
+        day: '2-digit', 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    } catch {
+      return "—";
+    }
   }
 
   return (
@@ -164,7 +169,9 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
               </Link>
               <div>
                 <h1 className="text-xl md:text-3xl font-bold">Détails du matériel</h1>
-                <p className="text-gray-500 mt-1 text-sm md:text-base">MATRI-{materielPdf.id}</p>
+                <p className="text-gray-500 mt-1 text-sm md:text-base">
+                  {materielPdf.numero || `EXP-${materielPdf.id.substring(0, 8)}`}
+                </p>
               </div>
             </div>
 
@@ -242,22 +249,41 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
           </div>
 
           {/* Informations géographiques */}
-          <Card className="mb-6">
-            <Descriptions title="Localisation" column={{ xs: 1, sm: 2, md: 2, lg: 4 }} bordered size="small">
-              <Descriptions.Item label="Région">
-                {(materielPdf as any).region?.nom || "—"}
-              </Descriptions.Item>
-              <Descriptions.Item label="District">
-                {(materielPdf as any).district?.nom || "—"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Commune">
-                {(materielPdf as any).commune?.nom || "—"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Centre de vote">
-                {(materielPdf as any).centreVote?.nom || "—"}
-              </Descriptions.Item>
-            </Descriptions>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
+            <Card>
+              <Descriptions title="Localisation de l'émetteur" column={{ xs: 1, sm: 2 }} bordered size="small">
+                <Descriptions.Item label="Région">
+                  {(materielPdf as any).regionEmetteur?.nom || (materielPdf as any).region?.nom || "—"}
+                </Descriptions.Item>
+                <Descriptions.Item label="District">
+                  {(materielPdf as any).districtEmetteur?.nom || (materielPdf as any).district?.nom || "—"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Commune">
+                  {(materielPdf as any).communeEmetteur?.nom || (materielPdf as any).commune?.nom || "—"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Centre de vote">
+                  {(materielPdf as any).centreVoteEmetteur?.nom || (materielPdf as any).centreVote?.nom || "—"}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+
+            <Card>
+              <Descriptions title="Localisation du récepteur" column={{ xs: 1, sm: 2 }} bordered size="small">
+                <Descriptions.Item label="Région">
+                  {(materielPdf as any).regionRecepteur?.nom || "—"}
+                </Descriptions.Item>
+                <Descriptions.Item label="District">
+                  {(materielPdf as any).districtRecepteur?.nom || "—"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Commune">
+                  {(materielPdf as any).communeRecepteur?.nom || "—"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Centre de vote">
+                  {(materielPdf as any).centreVoteRecepteur?.nom || "—"}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </div>
 
           {/* Liste des matériels */}
           {materielPdf.materiels && materielPdf.materiels.length > 0 && (

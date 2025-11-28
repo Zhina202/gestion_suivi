@@ -81,11 +81,22 @@ export interface ExpeditionFormData {
   dateDepart?: string;
   nomEmetteur?: string;
   adresseEmetteur?: string;
+  // Localisation de l'émetteur
+  regionEmetteurId?: string;
+  districtEmetteurId?: string;
+  communeEmetteurId?: string;
+  centreVoteEmetteurId?: string;
   lieuArrive: string;
   dateArrive?: string;
   nomRecepteur?: string;
   adresseRecepteur?: string;
+  // Localisation du récepteur
+  regionRecepteurId?: string;
+  districtRecepteurId?: string;
+  communeRecepteurId?: string;
+  centreVoteRecepteurId?: string;
   status: ExpeditionStatus;
+  // Localisation du matériel (pour compatibilité)
   regionId?: string;
   districtId?: string;
   communeId?: string;

@@ -47,6 +47,8 @@ model Region {
   // Relations
   districts   District[]
   expeditions Expedition[] @relation("RegionExpeditions")
+  expeditionsEmetteur Expedition[] @relation("RegionExpeditionsEmetteur")
+  expeditionsRecepteur Expedition[] @relation("RegionExpeditionsRecepteur")
 }
 
 // Districts (119 districts)
@@ -63,6 +65,8 @@ model District {
   region      Region      @relation(fields: [regionId], references: [id], onDelete: Cascade)
   communes    Commune[]
   expeditions Expedition[] @relation("DistrictExpeditions")
+  expeditionsEmetteur Expedition[] @relation("DistrictExpeditionsEmetteur")
+  expeditionsRecepteur Expedition[] @relation("DistrictExpeditionsRecepteur")
 }
 
 // Communes
@@ -78,6 +82,8 @@ model Commune {
   district    District    @relation(fields: [districtId], references: [id], onDelete: Cascade)
   centresVote CentreVote[]
   expeditions Expedition[] @relation("CommuneExpeditions")
+  expeditionsEmetteur Expedition[] @relation("CommuneExpeditionsEmetteur")
+  expeditionsRecepteur Expedition[] @relation("CommuneExpeditionsRecepteur")
 }
 
 // Centres de vote
@@ -94,6 +100,8 @@ model CentreVote {
   // Relations
   commune     Commune     @relation(fields: [communeId], references: [id], onDelete: Cascade)
   expeditions Expedition[] @relation("CentreVoteExpeditions")
+  expeditionsEmetteur Expedition[] @relation("CentreVoteExpeditionsEmetteur")
+  expeditionsRecepteur Expedition[] @relation("CentreVoteExpeditionsRecepteur")
 }
 
 // Types de matériels électoraux (catalogue)
@@ -123,16 +131,28 @@ model Expedition {
   nomEmetteur       String?
   adresseEmetteur   String?
   
+  // Localisation géographique de l'émetteur
+  regionEmetteurId      String?
+  districtEmetteurId    String?
+  communeEmetteurId     String?
+  centreVoteEmetteurId  String?
+  
   // Informations d'arrivée
   lieuArrive        String          // Lieu d'arrivée
   dateArrive        DateTime?
   nomRecepteur      String?
   adresseRecepteur  String?
   
+  // Localisation géographique du récepteur
+  regionRecepteurId      String?
+  districtRecepteurId    String?
+  communeRecepteurId     String?
+  centreVoteRecepteurId  String?
+  
   // Statut de l'expédition
   status            ExpeditionStatus @default(BROUILLON)
   
-  // Localisation géographique
+  // Localisation géographique du matériel (optionnel, pour compatibilité)
   regionId          String?
   districtId        String?
   communeId         String?
@@ -148,10 +168,25 @@ model Expedition {
   
   // Relations
   user              User?           @relation("UserExpeditions", fields: [userId], references: [id], onDelete: SetNull)
+  
+  // Relations pour l'émetteur
+  regionEmetteur        Region?          @relation("RegionExpeditionsEmetteur", fields: [regionEmetteurId], references: [id], onDelete: SetNull)
+  districtEmetteur      District?        @relation("DistrictExpeditionsEmetteur", fields: [districtEmetteurId], references: [id], onDelete: SetNull)
+  communeEmetteur       Commune?         @relation("CommuneExpeditionsEmetteur", fields: [communeEmetteurId], references: [id], onDelete: SetNull)
+  centreVoteEmetteur    CentreVote?      @relation("CentreVoteExpeditionsEmetteur", fields: [centreVoteEmetteurId], references: [id], onDelete: SetNull)
+  
+  // Relations pour le récepteur
+  regionRecepteur        Region?          @relation("RegionExpeditionsRecepteur", fields: [regionRecepteurId], references: [id], onDelete: SetNull)
+  districtRecepteur      District?        @relation("DistrictExpeditionsRecepteur", fields: [districtRecepteurId], references: [id], onDelete: SetNull)
+  communeRecepteur       Commune?         @relation("CommuneExpeditionsRecepteur", fields: [communeRecepteurId], references: [id], onDelete: SetNull)
+  centreVoteRecepteur    CentreVote?      @relation("CentreVoteExpeditionsRecepteur", fields: [centreVoteRecepteurId], references: [id], onDelete: SetNull)
+  
+  // Relations pour compatibilité (localisation du matériel)
   region            Region?          @relation("RegionExpeditions", fields: [regionId], references: [id], onDelete: SetNull)
   district          District?        @relation("DistrictExpeditions", fields: [districtId], references: [id], onDelete: SetNull)
   commune           Commune?         @relation("CommuneExpeditions", fields: [communeId], references: [id], onDelete: SetNull)
   centreVote        CentreVote?      @relation("CentreVoteExpeditions", fields: [centreVoteId], references: [id], onDelete: SetNull)
+  
   materiels         Materiel[]       @relation("ExpeditionMateriels")
   mouvements        Mouvement[]      @relation("ExpeditionMouvements")
 }

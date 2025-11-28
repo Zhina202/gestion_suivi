@@ -163,7 +163,9 @@ const Page = ({ params }: { params: Promise<{ materielId: string }> }) => {
               </Link>
               <div>
                 <h1 className="text-xl md:text-3xl font-bold">Modifier le matériel</h1>
-                <p className="text-gray-500 mt-1 text-sm md:text-base">MATRI-{materielPdf.id}</p>
+                <p className="text-gray-500 mt-1 text-sm md:text-base">
+                  {materielPdf.numero || `EXP-${materielPdf.id.substring(0, 8)}`}
+                </p>
               </div>
             </div>
 
